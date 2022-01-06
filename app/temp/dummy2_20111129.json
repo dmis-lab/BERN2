@@ -1,0 +1,1 @@
+[{"_id": "12313", "annotations": [{"id": ["MESH:D004050"], "is_neural_normalized": false, "logit": 0.9978715181350708, "mention": "diethyldithiocarbamate", "obj": "drug", "span": {"begin": 50, "end": 72}}], "pmid": "12313", "text": "Absorption, elimination and duration of action of diethyldithiocarbamate in animals [proceedings]."}, {"pmid": "12312323234234", "text": ""}]

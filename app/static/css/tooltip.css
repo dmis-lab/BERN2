@@ -1,0 +1,56 @@
+.stack-tooltips{
+  background-color: rgba(0, 0, 0, 0.7);
+  color: rgba(255, 255, 255, 1);
+  padding: 4px 8px;
+  font-size: 13px;
+  border-radius: 4px;
+  display: none;
+  z-index: 1024;
+}
+
+.stack-tooltips .entity-header{
+  font-weight: bold;
+}
+.stack-tooltips a{
+  text-decoration: underline;
+  color: rgba(255, 255, 255, 1);
+}
+
+.stack-tooltips[data-show] {
+    display: block;
+  }
+
+.arrow,
+.arrow::before {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: inherit;
+  border: inherit;
+}
+
+.arrow {
+  visibility: hidden;
+}
+
+.arrow::before {
+  visibility: visible;
+  content: '';
+  transform: rotate(45deg);
+}
+
+.stack-tooltips[data-popper-placement^='top'] > .arrow {
+    bottom: -4px;
+  }
+  
+  .stack-tooltips[data-popper-placement^='bottom'] > .arrow {
+    top: -4px;
+  }
+  
+  .stack-tooltips[data-popper-placement^='left'] > .arrow {
+    right: -4px;
+  }
+  
+  .stack-tooltips[data-popper-placement^='right'] > .arrow {
+    left: -4px;
+  }

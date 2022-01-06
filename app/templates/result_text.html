@@ -1,0 +1,56 @@
+
+<div class="col-lg-12">
+    <hr>
+    <div class="result-header row pt-2">
+        <div class="col-lg-12">
+            
+            <h3><small>Annotation result in{{ latency }}ms</small></h3>
+        </div>
+    </div>
+    {% for result_item in result_items %}
+        <div class="row pt-2">
+            <div class="float-left col-lg-4 pl-4">
+                {% if 'title' in result_item %}
+                    <h4><small>PMID: {{result_item['title'] }}</small></h4>
+                {% endif %}
+            </div>
+            <div class="float-right col-lg-8 legend-box">
+                <!-- <div class="latency float-left pr-4 col-sm-12">
+                    {{ latency }}ms
+                </div> -->
+                {% for legend_key in result_item['keys'] %}
+                    <div class="legend-entity"><div class="span-{{ legend_key }}"></div> {{ result_item['keys'][legend_key] }}</div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="pb-4">
+            {{ result_item['parsed_response']|safe }}
+        </div>
+        <!-- <div>
+            {{ result_item['tooltip_box']|safe }}
+        </div> -->
+    {% endfor %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="float-right">
+                <small>ID*: normalized by <a href="https://github.com/dmis-lab/BioSyn" target="_blank">BioSyn (Sung et al., 2020)</a></small>
+            </div>
+            
+        </div>
+    </div>
+
+    <h3>
+        <small>JSON Format</small>
+        
+    </h3>
+    <div class="jsonresult mb-4">
+        <pre id="results_in_json" class="collapse" aria-expanded='false'>{{ result_str|safe }}</pre>
+        
+        <button type='button' role='button' class='collapsed submit_btn btn btn-outline btn-primary' data-toggle="collapse" href="#results_in_json" aria-expanded="false" aria-controls="results_in_json" id='collapse-btn'></button>
+        <button type="button" class="btn btn-outline btn-primary json-copy-btn mr-2 bern2-btn" onclick="copy_json_to_clipboard();">
+            <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="copy" class="svg-inline--fa fa-copy fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M320 448v40c0 13.255-10.745 24-24 24H24c-13.255 0-24-10.745-24-24V120c0-13.255 10.745-24 24-24h72v296c0 30.879 25.121 56 56 56h168zm0-344V0H152c-13.255 0-24 10.745-24 24v368c0 13.255 10.745 24 24 24h272c13.255 0 24-10.745 24-24V128H344c-13.2 0-24-10.8-24-24zm120.971-31.029L375.029 7.029A24 24 0 0 0 358.059 0H352v96h96v-6.059a24 24 0 0 0-7.029-16.97z"></path></svg> 
+            Copy JSON to clipboard
+        </button>
+    </div>
+
+</div>

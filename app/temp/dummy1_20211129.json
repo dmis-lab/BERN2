@@ -1,0 +1,135 @@
+{
+    "annotations": [
+        {
+            "id": [
+                "MESH:D009369"
+            ],
+            "is_neural_normalized": false,
+            "logit": 0.9999922513961792,
+            "mention": "tumour",
+            "obj": "disease",
+            "span": {
+                "begin": 20,
+                "end": 26
+            }
+        },
+        {
+            "id": [
+                "MESH:D001120"
+            ],
+            "is_neural_normalized": false,
+            "logit": 0.9819278717041016,
+            "mention": "arginine",
+            "obj": "drug",
+            "span": {
+                "begin": 54,
+                "end": 62
+            }
+        },
+        {
+            "id": [
+                "CUI-less"
+            ],
+            "is_neural_normalized": false,
+            "logit": 0.8187932372093201,
+            "mention": "essential autophagy gene",
+            "obj": "DNA",
+            "span": {
+                "begin": 278,
+                "end": 302
+            }
+        },
+        {
+            "id": [
+                "CUI-less"
+            ],
+            "is_neural_normalized": false,
+            "logit": 0.6959381699562073,
+            "mention": "autophagy gene",
+            "obj": "gene",
+            "span": {
+                "begin": 288,
+                "end": 302
+            }
+        },
+        {
+            "id": [
+                "CUI-less"
+            ],
+            "is_neural_normalized": false,
+            "logit": 0.7361434698104858,
+            "mention": "Atg7",
+            "obj": "DNA",
+            "span": {
+                "begin": 303,
+                "end": 307
+            }
+        },
+        {
+            "id": [
+                "NCBI:txid10095"
+            ],
+            "is_neural_normalized": false,
+            "logit": 0.9752292633056641,
+            "mention": "mice",
+            "obj": "species",
+            "span": {
+                "begin": 317,
+                "end": 321
+            }
+        },
+        {
+            "id": [
+                "MESH:D013217"
+            ],
+            "is_neural_normalized": true,
+            "logit": 0.9323874115943909,
+            "mention": "starvation intolerance",
+            "obj": "disease",
+            "span": {
+                "begin": 375,
+                "end": 397
+            }
+        },
+        {
+            "id": [
+                "CUI-less"
+            ],
+            "is_neural_normalized": false,
+            "logit": 0.8247388601303101,
+            "mention": "Cancer cells",
+            "obj": "cell_type",
+            "span": {
+                "begin": 473,
+                "end": 485
+            }
+        },
+        {
+            "id": [
+                "MESH:D009369"
+            ],
+            "is_neural_normalized": false,
+            "logit": 0.9979585409164429,
+            "mention": "Cancer",
+            "obj": "disease",
+            "span": {
+                "begin": 473,
+                "end": 479
+            }
+        }
+    ],
+    "elapse_time": {
+        "biobert_elapse_time": 0.11554241180419922,
+        "gnormplus_elapse_time": 0.12254643440246582,
+        "n_norm_elapse_time": 0.019628524780273438,
+        "ner_elapse_time": 0.15232563018798828,
+        "norm_elapse_time": 0.03906655311584473,
+        "r_norm_elapse_time": 0.01943802833557129,
+        "tmvar2_elapse_time": 0.14976882934570312
+    },
+    "project": "BERN",
+    "sourcedb": "",
+    "sourceid": "bfd4fec0cd8accce3b9de20e3972f950fe38aee62154ae00962ee147",
+    "text": "Autophagy maintains tumour growth through circulating arginine. Autophagy captures intracellular components and delivers them to lysosomes, where they are degraded and recycled to sustain metabolism and to enable survival during starvation1-5. Acute, whole-body deletion of the essential autophagy gene Atg7 in adult mice causes a systemic metabolic defect that manifests as starvation intolerance and gradual loss of white adipose tissue, liver glycogen and muscle mass1. Cancer cells also benefit from autophagy.",
+    "timestamp": "Mon Dec 27 02:28:46 +0000 2021"
+}

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        {% include 'header.html' %}
+        <link href="{{ url_for('static', filename='css/documentation.css') }}" rel="stylesheet">
+    </head>
+    <body id="page-top">
+        <div id="wrapper">
+            <div id="mywrapper" class="d-flex flex-column">
+                <div id="content">
+                    <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom bg-dark text-white text-center">
+                        {% include 'navbar.html' %}
+                    </header>
+                    <div class="container-fluid">
+                        <div class="col-lg-8 col-md-10 col-sm-12 mx-auto mb-4 pt-4">
+                            <div class="py-4">
+                                <h1>BERN2 Documentation</h1>
+                            </div>
+                            <div class="py-2 mb-4">
+                                In biomedical natural language processing, named entity recognition (NER) and named entity normalization (NEN) are key tasks that enable the automatic extraction of biomedical entities (e.g., diseases and chemicals) from the ever-growing biomedical literature.
+We present BERN2 (Advanced Biomedical Entity Recognition and Normalization), a tool that improves the previous neural network-based NER tool (Kim et al., 2019) by employing a multi-task NER model and neural network-based NEN models to achieve much faster and more accurate inference. See our <a href="http://arxiv.org" target="_blank">paper</a> for more details.
+                            </div>
+                            <ul class="nav nav-tabs nav-justified" id="doc_tab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <a href="#api_content" class="nav-link active" data-toggle="tab">RESTful API</a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a href="#locally_content" class="nav-link" data-toggle="tab">Local Installation</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="doc_tab_content">
+                                <div class="tab-pane fade show active" id="api_content" role="tabpanel" aria-labelledby="api_tab">
+                                    {% include 'api_content.html' %}
+                                </div>
+                                <div class="tab-pane fade" id="locally_content" role="tabpanel" aria-labelledby="locally_tab">
+                                    {% include 'local_content.html' %}
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-lg-8 col-md-10 col-sm-12 mx-auto mb-4 py-4 text-center">
+                            <hr>
+                            <p>If you have any questions or have found a bug, please contact <a href="mailto:mujeensung@korea.ac.kr">mujeensung@korea.ac.kr</a> or <a href="mailto:minbyuljeong@korea.ac.kr">minbyuljeong@korea.ac.kr</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </body>
+    {% include 'footer.html' %}
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KDMZF35F91"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-KDMZF35F91');
+    </script>
+</html>

@@ -1,0 +1,174 @@
+
+<div class="py-4">
+    <h3>Plain Text as Input</h3>
+</div>
+<div class="py-2 doc-bullet">
+    <p class="font-weight-bold">HTTP method</p>
+    <span>POST</span>
+</div>
+<div class="py-2 doc-bullet">
+    <p class="font-weight-bold">Request URL</p>
+    <code class="bern2-code font-weight-bold">http://bern2.korea.ac.kr/plain</code>
+</div>
+<div class="py-2 doc-bullet">
+    <p class="font-weight-bold">Request Body</p>
+    <pre>
+{
+    "text":"Autophagy maintains tumour growth through circulating arginine."
+}
+</pre>
+</div>
+<div class="py-2 doc-bullet">
+    <p class="font-weight-bold">Response</p>
+    <span>If the input text is annotated successfully, the response is a <code class="bern2-code font-weight-bold">200 OK</code> status code. The response body contains a JSON representation of the annotations.</span>
+</div>
+<div class="py-2">
+    <pre>
+{
+    "annotations": [
+        {
+            "id": [
+                "MESH:D009369"
+            ],
+            "is_neural_normalized": false,
+            "prob": 0.9999922513961792,
+            "mention": "tumour",
+            "obj": "disease",
+            "span": {
+                "begin": 20,
+                "end": 26
+            }
+        },
+        {
+            "id": [
+                "MESH:D001120"
+            ],
+            "is_neural_normalized": false,
+            "prob": 0.9819278717041016,
+            "mention": "arginine",
+            "obj": "drug",
+            "span": {
+                "begin": 54,
+                "end": 62
+            }
+        }
+    ],
+    "text": "Autophagy maintains tumour growth through circulating arginine.",
+    "timestamp": "Thu Dec 23 04:12:28 +0000 2021"
+}
+</pre>
+                                        
+</div>
+<div class="py-2 doc-bullet">
+    <p class="font-weight-bold">Curl command</p>
+    <pre>
+$ curl -d '{"text":"Autophagy maintains tumour growth through circulating arginine."}' \
+-H "Content-Type: application/json" \
+-X POST http://bern2.korea.ac.kr/plain
+</pre>
+</div>
+
+<div class="py-2">
+    <p class="font-weight-bold">Python example</p>
+    <pre>
+import requests
+
+def query_plain(text, url="http://bern2.korea.ac.kr/plain"):
+    return requests.post(url, json={'text': text}).json()
+
+if __name__ == '__main__':
+    text = "Autophagy maintains tumour growth through circulating arginine."
+    print(query_plain(text))
+</pre>
+</div>
+
+<hr>
+<div class="py-4">
+    <h3>PubMed ID (PMID) as Input</h3>
+</div>
+
+<div class="py-2 doc-bullet">
+    <p class="font-weight-bold">HTTP method</p>
+    <span>GET</span>
+</div>
+<div class="py-2 doc-bullet">
+    <p class="font-weight-bold">Request URL</p>
+    <code class="bern2-code font-weight-bold">http://bern2.korea.ac.kr/pubmed/30429607,29446767</code>
+</div>
+<div class="py-2 doc-bullet">
+    <p class="font-weight-bold">Request Body</p>
+    None
+</div>
+<div class="py-2 doc-bullet">
+    <p class="font-weight-bold">Response</p>
+    <span>If the PubMed articles are annotated successfully, the response is a <code class="bern2-code font-weight-bold">200 OK</code> status code. The response body contains a JSON representation of the annotations.</span>
+</div>
+<div class="py-2">
+    <pre>
+[
+    {
+        "pmid": "30429607",
+        "annotations": [
+            {
+                "id": [
+                    "MESH:D009369"
+                ],
+                "is_neural_normalized": false,
+                "prob": 0.9999922513961792,
+                "mention": "tumour",
+                "obj": "disease",
+                "span": {
+                    "begin": 20,
+                    "end": 26
+                }
+            },
+            ...
+        ],
+        "text": "Autophagy maintains tumour growth through circulating arginine. ...",
+        "timestamp": "Thu Dec 23 05:17:50 +0000 2021"
+    },
+    {
+        "pmid": "29446767",
+        "annotations": [
+            {
+                "id": [
+                    "MESH:C567763"
+                ],
+                "is_neural_normalized": false,
+                "prob": 0.9999992847442627,
+                "mention": "CLAPO syndrome",
+                "obj": "disease",
+                "span": {
+                    "begin": 0,
+                    "end": 14
+                }
+            },
+            ...
+        ],
+        "text": "CLAPO syndrome: identification of somatic activating PIK3CA mutations and PURPOSE: CLAPO syndrome is a rare vascular disorder characterized by capillary malformation of the lower lip, lymphatic malformation predominant on the face and neck, asymmetry, and partial/generalized overgrowth. ...",
+        "timestamp": "Thu Dec 23 05:17:51 +0000 2021"
+    }
+]
+</pre>
+</div>
+<div class="py-2 doc-bullet">
+    <p class="font-weight-bold">Curl command</p>
+    <pre>
+$ curl -H "Content-Type: application/json" \
+-X GET http://bern2.korea.ac.kr/pubmed/30429607,29446767
+</pre>
+
+<div class="py-2">
+    <p class="font-weight-bold">Python example</p>
+    <pre>
+import requests
+
+def query_pmid(pmids, url="http://bern2.korea.ac.kr/pubmed"):
+    return requests.get(url + "/" + ",".join(pmids)).json()
+
+if __name__ == '__main__':
+    pmids = ["30429607", "29446767"]
+    print(query_pmid(pmids))
+</pre>
+</div>
+</div>

@@ -1,0 +1,21 @@
+.bern2-code{
+    color: #4e73df;
+    background-color: #f5f5f5;
+    border-radius: 0.3rem;
+    overflow: hidden;
+    padding: 0.3rem;
+}
+
+.shortcuts-container{
+    /* top: 5rem; */
+    padding-top: 1rem;
+}
+
+.shortcuts-list li{
+    list-style-type:none;
+    line-height: 2rem;
+}
+
+.shortcuts-list .shortcuts-subitem{
+    padding-left: 1rem;
+}

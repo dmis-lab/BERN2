@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        {% include 'header.html' %}
+        <link href="{{ url_for('static', filename='css/tooltip.css') }}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='css/loader.css') }}" rel="stylesheet">
+    </head>
+    <body id="page-top">
+
+        <div id="wrapper">
+            <div id="mywrapper" class="d-flex flex-column">
+                <div id="content">
+                    <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom bg-dark text-white text-center">
+                        {% include 'navbar.html' %}
+                    </header>
+                    <div class="container-fluid">
+                        <div class="py-3 text-center">
+                            <h1 class="font-weight-bold brand-name">BERN2</h1>
+                            <div class="col-lg-8 col-md-10 col-sm-12 mx-auto">
+                                An Advanced Neural Biomedical Named Entity Recognition and Normalization Tool (Sung et al., 2022)
+                                <br>
+                                <a href="https://dmis.korea.ac.kr/">DMIS Lab</a> at Korea University
+                                <br>
+                                <div class="col-xl-7 col-lg-9 col-md-12 mx-auto text-left py-2">
+                                    <h4>Features of BERN2</h4>
+                                    <ul>
+                                        <li>
+                                            Recognition of 9 biomedical entity types along with normalized IDs
+                                            <br>
+                                            (Gene, Disease, Chemical, Species, Mutation, Cell Line, Cell Type, DNA, and RNA)
+                                        </li>
+                                        <li>Plain text or PMID as an input and annotated results in real time</li>
+                                        <li>RESTful API or local installation (<a href="./documentation">documentation</a>)</li>
+                                        <li>Pre-processed PubMed annotations (<a href="https://github.com/dmis-lab/BERN2#annotations" target="_blank">annotations</a>)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 col-md-10 col-sm-12 mx-auto mb-4">
+                            <div class="form-check mb-2 pl-4">
+                                <input type="radio" name="select_input_type" id="input_type_text" class="form-check-input" value="text" checked>
+                                <label for="input_type_text" class="form-check-label mr-5">Plain Text</label>
+                                <input type="radio" name="select_input_type" id="input_type_pmid" class="form-check-input" value="pmid">
+                                <label for="input_type_pmid" class="form-check-label mr-5">PubMed ID (PMID)</label>
+                            </div>
+                            <div class="form-group">
+                                <textarea id='test_textarea' name="test_textarea" maxlength="3000" rows="15" class="form-control" onfocus="onFocusArea();">Autophagy maintains tumour growth through circulating arginine. Autophagy captures intracellular components and delivers them to lysosomes, where they are degraded and recycled to sustain metabolism and to enable survival during starvation1-5. Acute, whole-body deletion of the essential autophagy gene Atg7 in adult mice causes a systemic metabolic defect that manifests as starvation intolerance and gradual loss of white adipose tissue, liver glycogen and muscle mass1. Cancer cells also benefit from autophagy.</textarea>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <span id="text_count"></span>
+                                    <button class="submit_btn btn btn-outline btn-primary bern2-btn" type="button" onclick="submit_sample();">
+                                        <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="upload" class="svg-inline--fa fa-upload fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M296 384h-80c-13.3 0-24-10.7-24-24V192h-87.7c-17.8 0-26.7-21.5-14.1-34.1L242.3 5.7c7.5-7.5 19.8-7.5 27.3 0l152.2 152.2c12.6 12.6 3.7 34.1-14.1 34.1H320v168c0 13.3-10.7 24-24 24zm216-8v112c0 13.3-10.7 24-24 24H24c-13.3 0-24-10.7-24-24V376c0-13.3 10.7-24 24-24h136v8c0 30.9 25.1 56 56 56h80c30.9 0 56-25.1 56-56v-8h136c13.3 0 24 10.7 24 24zm-124 88c0-11-9-20-20-20s-20 9-20 20 9 20 20 20 20-9 20-20zm64 0c0-11-9-20-20-20s-20 9-20 20 9 20 20 20 20-9 20-20z"></path></svg>
+                                        Submit
+                                    </button>
+                                    
+                                </div>
+                                
+                            </div>
+                            
+                            <div class="loader-box py-5 mx-auto">
+                                <div class="loader10"></div>
+                            </div>
+                            <div class="row" id="demo_result">
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-8 col-md-10 col-sm-12 mx-auto mb-4 py-4 text-center bern2-footer">
+                            <hr>
+                            If you use BERN2 in your work, please cite our paper.
+                            <div class="py-2 footer-citation mx-auto">
+<pre class="text-left">
+@article{sung2021bern2,
+    title={BERN2: an advanced neural biomedical namedentity recognition and normalization tool}, 
+    author={Sung, Mujeen and Jeong, Minbyul and Choi, Yonghwa and Kim, Donghyeon and Lee, Jinhyuk and Kang, Jaewoo},
+    year={2022},
+    eprint={TBD},
+    archivePrefix={arXiv},
+    primaryClass={cs.CL}
+}
+</pre>
+                            </div>
+                            <p>If you have any questions or have found a bug, please post an issue on <a href="https://github.com/dmis-lab/BERN2/issues" target="_blank">GitHub</a> or contact <a href="mailto:mujeensung@korea.ac.kr">mujeensung@korea.ac.kr</a> or <a href="mailto:minbyuljeong@korea.ac.kr">minbyuljeong@korea.ac.kr</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    {% include 'footer.html' %}
+    <script src="{{ url_for('static', filename='js/main.js')}}"></script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KDMZF35F91"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-KDMZF35F91');
+    </script>
+</html>
