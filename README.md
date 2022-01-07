@@ -71,7 +71,7 @@ The data provided by BERN2 is post-processed and may differ from the most curren
 
 ## Citation
 ```bibtex
-@article{sung2021bern2,
+@article{sung2022bern2,
     title={BERN2: an advanced neural biomedical namedentity recognition and normalization tool}, 
     author={Sung, Mujeen and Jeong, Minbyul and Choi, Yonghwa and Kim, Donghyeon and Lee, Jinhyuk and Kang, Jaewoo},
     year={2022},
