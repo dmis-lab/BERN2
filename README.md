@@ -4,6 +4,9 @@ We present **BERN2** (Advanced **B**iomedical **E**ntity **R**ecognition and **N
 
 ***** **Try BERN2 at [http://bern2.korea.ac.kr](http://bern2.korea.ac.kr)** ***** 
 
+**[News]**
+- The BERN2 server will be unavailable due to a power outage in our server room from 2022-01-15 02:00 AM to 2022-01-15 02:00 PM (UTC-0).
+
 ## Installing BERN2
 
 You first need to install BERN2 and its dependencies.
