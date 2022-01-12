@@ -178,6 +178,11 @@ class BERN2():
                   f'[{base_name}] Found a CRLF -> replace it w/ a space')
             text = text.replace('\r\n', ' ')
 
+        if ' ' in text:
+            print(datetime.now().strftime(self.time_format),
+                  f'[{base_name}] Found a strange space -> replace it w/ a space')
+            text = text.replace(' ', ' ')
+
         if '\n' in text:
             print(datetime.now().strftime(self.time_format),
                   f'[{base_name}] Found a line break -> replace it w/ a space')
