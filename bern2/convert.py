@@ -219,6 +219,10 @@ def get_bestplus_spans(mutations, title_space_abstract):
         if 'No text' in m['mention']:
             continue
 
+        # (20220113) hotfix
+        if 'text ' in m['mention']:
+            continue
+
         if m['mention'] in mention_count_dict:
             mention_count_dict[m['mention']] += 1
         else:

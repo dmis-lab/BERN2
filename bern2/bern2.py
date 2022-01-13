@@ -106,6 +106,8 @@ class BERN2():
             output['error_code'], output['error_message'] = 0, ""
 
         except Exception as e:
+            errStr = traceback.format_exc()
+            print(errStr)
             
             output = {"error_code": 1, "error_message": "Something went wrong. Try again."}
 
