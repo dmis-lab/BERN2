@@ -217,12 +217,17 @@ class ResultParser:
         keys_in_dict = []
 
         if 'annotations' not in result_dict.keys():
+            # TODO: handle with error_code stuff
             # Error case
             if 'pmid' in result_dict.keys():
-                return "error", "{} is not a valid PMID".format(result_dict['pmid']), "", {}
+                return "error", "{} is not a valid PMID".format(result_dict['pmid']), {}
             else:
-                return "error", "Empty text as an input", "", {}
+                return "error", "Empty text as an input", {}
             # result_dict['annotations'] = []
+        
+        if "error_code" in result_dict.keys():
+            if int(result_dict["error_code"]) != 0:
+                return "error", result_dict["error_message"], {}
         
         for d_idx, d_info in enumerate(result_dict['annotations']):
             # if not is_neural_normalized:
@@ -249,7 +254,6 @@ class ResultParser:
                 parsed_annotations[e_offset] = [d_e_item]
         
         split_text = []
-        div_texts = []
         prev_offset = 0
 
         d_stack = DenotationStack(result_id=result_id)
@@ -272,13 +276,10 @@ class ResultParser:
             if d_stack._length() > 0:
                 span_text, div_text = d_stack.to_span_div_text(offset=str(_offset))
                 split_text.append(div_text + span_text)
-                div_texts.append(div_text)
                 # split_text.append(d_stack.to_span_text())
             
             prev_offset = _offset
         
         split_text.append(org_text[prev_offset:])
 
-        tooltip_box = "<div class='tooltip-container'>{}</div>".format("".join(div_texts))
-
-        return "success", ''.join(split_text), tooltip_box, keys_in_dict
+        return "success", ''.join(split_text), keys_in_dict

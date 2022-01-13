@@ -67,7 +67,7 @@ def create_app(args):
         
         result_dicts = [model.annotate_pmid(pmid=pmid) for pmid in pmids]
         for r in result_dicts:
-            del_keys_from_dict(r, ["sourcedb", "sourceid", "project", "elapse_time"])
+            del_keys_from_dict(r, ["sourcedb", "sourceid", "project", "elapse_time", "error_code", "error_message"])
         return json.dumps(result_dicts, sort_keys=True)
     
     @app.route('/plain', methods=['POST'])
@@ -77,7 +77,7 @@ def create_app(args):
 
         # annotate input
         result_dict = model.annotate_text(text=sample_text)
-        del_keys_from_dict(result_dict, ["sourcedb", "sourceid", "project", "elapse_time"])
+        del_keys_from_dict(result_dict, ["sourcedb", "sourceid", "project", "elapse_time", "error_code", "error_message"])
 
         return json.dumps(result_dict, sort_keys=True)
 
@@ -108,16 +108,15 @@ def create_app(args):
                 dummy_path = os.path.join(app.root_path, "temp/dummy1_20211129.json")
                 with open(dummy_path, 'r') as rf:
                     result_dict = json.load(rf)
-            _code, parse_res, tooltip_box, keys_in_dict = r_parser.parse_result(result_dict, draw_keys, result_id="text")
+            _code, parse_res, keys_in_dict = r_parser.parse_result(result_dict, draw_keys, result_id="text")
 
             if not _debug:
-                del_keys_from_dict(result_dict, ["sourcedb", "sourceid", "project", "elapse_time"])
+                del_keys_from_dict(result_dict, ["sourcedb", "sourceid", "project", "elapse_time", "error_code", "error_message"])
 
             latency = time.time() - start
 
             res_items.append({
                 'parsed_response': parse_res,
-                'tooltip_box': tooltip_box,
                 'keys': {k: r_parser.entity_type_dict[k] for k in keys_in_dict}
             })
 
@@ -136,20 +135,19 @@ def create_app(args):
             pmid2result_dicts = {f"{result_dict['pmid']}_{i}":result_dict for i, result_dict in enumerate(result_dicts)}
 
             for _pmid, result_dict in pmid2result_dicts.items():
-                _code, parse_res, tooltip_box, keys_in_dict = r_parser.parse_result(result_dict, draw_keys, result_id=_pmid)
+                _code, parse_res, keys_in_dict = r_parser.parse_result(result_dict, draw_keys, result_id=_pmid)
 
                 if _code == "error":
                     # TODO: logging ERROR case
                     print("ERROR PMID:", _pmid)
                 
                 if not _debug:
-                    del_keys_from_dict(result_dict, ["sourcedb", "sourceid", "project", "elapse_time"])
+                    del_keys_from_dict(result_dict, ["sourcedb", "sourceid", "project", "elapse_time", "error_code", "error_message"])
 
                 legend_items = {k: r_parser.entity_type_dict[k] for k in keys_in_dict}
 
                 res_item = {
                     'parsed_response': parse_res,
-                    'tooltip_box': tooltip_box,
                     'keys': legend_items
                 }
                 if 'pmid' in result_dict.keys():
