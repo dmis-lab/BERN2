@@ -122,6 +122,9 @@ class BERN2():
                 for annotation in output['annotations']:
                     if isinstance(annotation['id'][0], list):
                         annotation['id'] = annotation['id'][0]
+
+                # hotfix
+                output['pmid'] = pmid
                 return output
         
         text, status_code = self.get_text_data_from_pubmed(pmid)
@@ -134,7 +137,8 @@ class BERN2():
 
             # if db is running, cache the annotation into db
             if self.caching_db:
-                self.caching_db.insert_one(json_result)
+                output['_id'] = pmid
+                self.caching_db.insert_one(output)
 
         # error from pubmed (Not Found)
         else:
