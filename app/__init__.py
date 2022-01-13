@@ -1,7 +1,7 @@
 import os
 import json
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, Response
 
 try:
     from .result_parser import ResultParser
@@ -67,6 +67,9 @@ def create_app(args):
         
         result_dicts = [model.annotate_pmid(pmid=pmid) for pmid in pmids]
         for r in result_dicts:
+            if "error_code" in r.keys():
+                if int(r["error_code"]) != 0:
+                    return Response(json.dumps({"error_message": r["error_message"]}), status=500, content_type='application/json')
             del_keys_from_dict(r, ["sourcedb", "sourceid", "project", "elapse_time", "error_code", "error_message"])
         return json.dumps(result_dicts, sort_keys=True)
     
@@ -77,6 +80,9 @@ def create_app(args):
 
         # annotate input
         result_dict = model.annotate_text(text=sample_text)
+        if "error_code" in result_dict.keys():
+            if int(result_dict["error_code"]) != 0:
+                return Response(json.dumps({"error_message": result_dict["error_message"]}), status=500, content_type='application/json')
         del_keys_from_dict(result_dict, ["sourcedb", "sourceid", "project", "elapse_time", "error_code", "error_message"])
 
         return json.dumps(result_dict, sort_keys=True)
