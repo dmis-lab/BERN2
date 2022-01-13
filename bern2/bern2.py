@@ -13,6 +13,7 @@ import json
 import sys
 from datetime import datetime
 from collections import OrderedDict
+import traceback
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -96,12 +97,20 @@ class BERN2():
 
         print(datetime.now().strftime(self.time_format), 'BERN2 LOADED..')
     
-    def annotate_text(self, text):
-        text = text.strip()
-        base_name = self.generate_base_name(text) # for the name of temporary files
-        text = self.preprocess_input(text, base_name)
-        return self.tag_entities(text, base_name)
-    
+    def annotate_text(self, text, pmid=None):
+        try:
+            text = text.strip()
+            base_name = self.generate_base_name(text) # for the name of temporary files
+            text = self.preprocess_input(text, base_name)
+            output = self.tag_entities(text, base_name)
+            output['error_code'], output['error_message'] = 0, ""
+
+        except Exception as e:
+            
+            output = {"error_code": 1, "error_message": "Something went wrong. Try again."}
+
+        return output
+
     def annotate_pmid(self, pmid):
         pmid = pmid.strip()
         
@@ -119,20 +128,20 @@ class BERN2():
             output = self.caching_db.find_one({"_id": pmid})
             if output:
                 # hotfix
-                for annotation in output['annotations']:
-                    if isinstance(annotation['id'][0], list):
-                        annotation['id'] = annotation['id'][0]
-
-                # hotfix
-                output['pmid'] = pmid
-                return output
+                if 'pmid' not in output:
+                    self.caching_db.delete_one({'_id': pmid})
+                elif 'error_code' in output and output['error_code'] != 0:
+                    self.caching_db.delete_one({'_id': pmid})
+                else:
+                    return output
         
         text, status_code = self.get_text_data_from_pubmed(pmid)
 
         if status_code == 200:
             output = OrderedDict()
             output['pmid'] = pmid 
-            json_result = self.annotate_text(text)
+            json_result = self.annotate_text(text, pmid)
+            
             output.update(json_result)
 
             # if db is running, cache the annotation into db
@@ -182,11 +191,6 @@ class BERN2():
                   f'[{base_name}] Found a CRLF -> replace it w/ a space')
             text = text.replace('\r\n', ' ')
 
-        if ' ' in text:
-            print(datetime.now().strftime(self.time_format),
-                  f'[{base_name}] Found a strange space -> replace it w/ a space')
-            text = text.replace(' ', ' ')
-
         if '\n' in text:
             print(datetime.now().strftime(self.time_format),
                   f'[{base_name}] Found a line break -> replace it w/ a space')
@@ -201,6 +205,9 @@ class BERN2():
             print(datetime.now().strftime(self.time_format),
                   f'[{base_name}] Found a \\xa0 -> replace w/ a space')
             text = text.replace('\xa0', ' ')
+
+        # remove non-ascii
+        text = text.encode("ascii", "ignore").decode()
 
         found_too_long_words = 0
         tokens = text.split(' ')
