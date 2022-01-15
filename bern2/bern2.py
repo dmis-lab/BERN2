@@ -291,7 +291,7 @@ class BERN2():
         loop.close()
         gnormplus_elapse_time = async_result['gnormplus_elapse_time']
         tmvar2_elapse_time = async_result['tmvar2_elapse_time']
-        biobert_elapse_time = async_result['biobert_elapse_time']
+        mtner_elapse_time = async_result['mtner_elapse_time']
 
         # get output result to merge
         tagged_docs = async_result['tagged_docs']
@@ -348,7 +348,7 @@ class BERN2():
         tagged_docs[0]['elapse_time'] = {
             'gnormplus_elapse_time': gnormplus_elapse_time,
             'tmvar2_elapse_time':tmvar2_elapse_time,
-            'biobert_elapse_time':biobert_elapse_time,
+            'mtner_elapse_time':mtner_elapse_time,
             'ner_elapse_time': ner_elapse_time,
             'r_norm_elapse_time':r_norm_elapse_time,
             'n_norm_elapse_time':n_norm_elapse_time,
@@ -464,11 +464,11 @@ class BERN2():
                 return None
 
             assert len(tagged_docs) == 1
-            biobert_elapse_time = time.time() - start_time
+            mtner_elapse_time = time.time() - start_time
             print(datetime.now().strftime(self.time_format),
-                f'[{base_name}] Multi-task NER {biobert_elapse_time} sec, #entities: {num_entities}')
+                f'[{base_name}] Multi-task NER {mtner_elapse_time} sec, #entities: {num_entities}')
 
-            return {"biobert_elapse_time": biobert_elapse_time,
+            return {"mtner_elapse_time": mtner_elapse_time,
                     "tagged_docs": tagged_docs,
                     "num_entities": num_entities}
 
