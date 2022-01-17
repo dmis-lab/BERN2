@@ -210,13 +210,13 @@ class BERN2():
 
         if '\x0b' in text:
             print(datetime.now().strftime(self.time_format),
-                  f'[{base_name}] Found a \\xb0 -> replace w/ a space')
-            text = text.replace('\xb0', ' ')
+                  f'[{base_name}] Found a \\x0b -> replace w/ a space')
+            text = text.replace('\x0b', ' ')
             
         if '\x0c' in text:
             print(datetime.now().strftime(self.time_format),
-                  f'[{base_name}] Found a \\xc0 -> replace w/ a space')
-            text = text.replace('\xc0', ' ')
+                  f'[{base_name}] Found a \\x0c -> replace w/ a space')
+            text = text.replace('\x0c', ' ')
         
         # remove non-ascii
         text = text.encode("ascii", "ignore").decode()
