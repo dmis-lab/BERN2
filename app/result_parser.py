@@ -1,3 +1,7 @@
+from typing import Optional
+
+import bioregistry
+
 COLOR_DICT = {
     'disease': (228, 26, 28),
     'mutation': (55, 126, 184),
@@ -10,23 +14,25 @@ COLOR_DICT = {
     'cell_type': (153, 153, 153)
 }
 
-def id2url(_id):
-    if "MESH" in _id:
-        t_id = _id.split(":")[1]
-        return "https://id.nlm.nih.gov/mesh/{}.html".format(t_id)
-    elif "OMIM" in _id:
-        t_id = _id.split(":")[1]
-        return "https://omim.org/entry/{}".format(t_id)
-    elif "EntrezGene" in _id:
-        t_id = _id.split(":")[1]
-        return "https://www.ncbi.nlm.nih.gov/gene/{}".format(t_id)
-    elif "CVCL" in _id:
-        return "https://web.expasy.org/cellosaurus/{}".format(_id)
-    elif "NCBI" in _id:
-        t_id = _id.split(":")[1]
-        return "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id={}".format(t_id)
-    else:
-        return ""
+
+def id2url(curie: str) -> Optional[str]:
+    """Generate a URL for the given compact URI (CURIE), if possible.
+
+    :param curie: A compact URI (CURIE) in the form of `prefix:identifier`
+    :returns: A URL string if the Bioregistry can construct one, otherwise None.
+
+
+    >>> id2url("MESH:C063233")
+    'https://meshb.nlm.nih.gov/record/ui?ui=C063233'
+    >>> id2url("NCBI:txid10095")
+    'https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=10095'
+    """
+    if curie.startswith("NCBI:txid"):
+        # If the CURIE is using non-standard NCBI taxonomy identifiers,
+        # do a small amount of string pre-processing to fix the prefix
+        curie = "NCBITaxon:" + curie[len("NCBI:txid"):]
+    return bioregistry.get_iri(curie)
+
 
 class Denotation:
     def __init__(self, obj_id=None, point=None, offset=None, key=None, info=None, type=None, mention=None):
@@ -108,7 +114,7 @@ class Denotation:
         if self.key == "mutation":
             _url = id2url(self.info['normalizedName'])
 
-            if _url == "":
+            if _url is None:
                 anchor_text = "{}{}".format(self.info['normalizedName'], self.mark)
             else:
                 anchor_text = "<a href='{}' target='_blank'>{}</a>{}".format(_url, self.info['normalizedName'], self.mark)
@@ -116,7 +122,7 @@ class Denotation:
             anchor_texts = []
             for _id in self.ids:
                 _url = id2url(_id)
-                if _url == "":
+                if _url is None:
                     _a_text = _id
                 else:
                     _a_text = "<a href='{}' target='_blank'>{}</a>".format(_url, _id)
