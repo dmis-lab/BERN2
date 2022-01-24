@@ -21,7 +21,6 @@ def id2url(curie: str) -> Optional[str]:
     :param curie: A compact URI (CURIE) in the form of `prefix:identifier`
     :returns: A URL string if the Bioregistry can construct one, otherwise None.
 
-
     >>> id2url("MESH:C063233")
     'https://meshb.nlm.nih.gov/record/ui?ui=C063233'
     >>> id2url("NCBI:txid10095")
