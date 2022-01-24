@@ -8,3 +8,4 @@ xmltodict==0.12.0
 accelerate==0.3.0
 pymongo
 Flask
+faiss
