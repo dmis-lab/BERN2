@@ -1,7 +1,7 @@
 import csv
 
-input_path = "../normalization/resources/rawdata/CL_20210810.csv"
-output_path = "../normalization/resources/dictionary/best_dict_CellType_20210810.txt"
+input_path = "../resources/normalization/resources/rawdata/CL_20210810.csv"
+output_path = "../resources/normalization/resources/dictionary/best_dict_CellType_20210810.txt"
 
 cui2names = {}
 with open(input_path) as f:
