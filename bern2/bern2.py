@@ -14,6 +14,7 @@ import sys
 from datetime import datetime
 from collections import OrderedDict
 import traceback
+import bioregistry
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -92,7 +93,7 @@ class BERN2():
             client = MongoClient(cache_host, cache_port, serverSelectionTimeoutMS = 2000)
             client.server_info()
             self.caching_db = client.bern2_v1_1.pmid
-        except:
+        except Exception as e:
             self.caching_db = None
 
         print(datetime.now().strftime(self.time_format), 'BERN2 LOADED..')
@@ -110,8 +111,8 @@ class BERN2():
             print(errStr)
             
             output = {"error_code": 1, "error_message": "Something went wrong. Try again."}
-
-        return output
+        
+        return post_process_output(output)
 
     def annotate_pmid(self, pmid):
         pmid = pmid.strip()
@@ -134,32 +135,87 @@ class BERN2():
                     self.caching_db.delete_one({'_id': pmid})
                 elif 'error_code' in output and output['error_code'] != 0:
                     self.caching_db.delete_one({'_id': pmid})
-                else:
-                    return output
-        
-        text, status_code = self.get_text_data_from_pubmed(pmid)
+        # otherwise, get pubmed article from web and annotate the text
+        else:    
+            text, status_code = self.get_text_data_from_pubmed(pmid)
 
-        if status_code == 200:
-            output = OrderedDict()
-            output['pmid'] = pmid 
-            json_result = self.annotate_text(text, pmid)
-            
-            output.update(json_result)
+            if status_code == 200:
+                output = OrderedDict()
+                output['pmid'] = pmid 
+                json_result = self.annotate_text(text, pmid)
+                
+                output.update(json_result)
 
-            # if db is running, cache the annotation into db
-            if self.caching_db:
-                output['_id'] = pmid
-                self.caching_db.insert_one(output)
+                # if db is running, cache the annotation into db
+                if self.caching_db:
+                    output['_id'] = pmid
+                    self.caching_db.insert_one(output)
 
-        # error from pubmed (Not Found)
-        else:
-            output = {
-                'pmid': pmid,
-                'text': ""
-            }
+            # error from pubmed (Not Found)
+            else:
+                output = {
+                    'pmid': pmid,
+                    'text': ""
+                }
+
+        return post_process_output(output)
+
+    def post_process_output(self, output):
+        # hotfix: split_cuis (e.g., "OMIM:608627,MESH:C563895" => ["OMIM:608627","MESH:C563895"])
+        output = split_cuis(output)
+
+        # standardize prefixes (e.g., EntrezGene:10533 => NCBIGene:10533)
+        output = standardize_prefixes(output)
 
         return output
 
+    def split_cuis(self, output):
+        # "OMIM:608627,MESH:C563895" 
+        # => ["OMIM:608627","MESH:C563895"]
+
+        for anno in output['annotations']:
+            cuis = anno['id']
+            new_cuis = []
+            for cui in cuis:
+                new_cuis += cui.split(",")
+            anno['id'] = new_cuis                 
+        return output
+
+    def standardize_prefixes(self, output):
+        # EntrezGene:10533 => NCBIGene:10533
+        for anno in output['annotations']:
+            cuis = anno['id']
+            obj = anno['obj']
+            if obj not in ['disease', 'gene', 'drug', 'species', 'cell_line', 'cell_type']:
+                continue
+
+            new_cuis = []
+            for cui in cuis:
+                if "NCBI:txid" in cui: # NCBI:txid10095
+                    prefix, numbers = cui.split("NCBI:txid")
+                    prefix = "ncbitaxon"
+                elif "_" in cui: # CVCL_J260
+                    prefix, numbers = cui.split("_")
+                elif ":" in cui: # MESH:C563895
+                    prefix, numbers = cui.split(":")
+                else:
+                    new_cuis.append(cui)
+                    continue
+                    
+                normalized_prefix = bioregistry.normalize_prefix(prefix)
+                if normalized_prefix is not None:
+                    prefix = normalized_prefix
+                
+                preferred_prefix = bioregistry.get_preferred_prefix(prefix)
+                if preferred_prefix is not None:
+                    prefix = preferred_prefix
+                    
+                new_cuis.append(":".join([prefix,numbers]))
+            
+            anno['id'] = new_cuis
+
+        return output
+                
     def get_text_data_from_pubmed(self, pmid):
         title = ""
         abstract = ""
