@@ -232,11 +232,15 @@ def get_bestplus_spans(mutations, title_space_abstract):
 
         start = -1
         found = 0
-        while found < count:
-            start = title_space_abstract.index(m['mention'], start + 1)
-            assert start > -1
-            found += 1
-
+        try:
+            while found < count:
+                start = title_space_abstract.index(m['mention'], start + 1)
+                assert start > -1
+                found += 1
+        except ValeuError:
+            # hotfix for tmvar wrong mention
+            continue
+            
         end = start + len(m['mention']) - 1  # 2018.8.29 @chanho feedback
 
         assert m['mention'] == title_space_abstract[start: end + 1]
