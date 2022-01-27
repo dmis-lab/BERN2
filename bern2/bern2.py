@@ -112,7 +112,7 @@ class BERN2():
             
             output = {"error_code": 1, "error_message": "Something went wrong. Try again."}
         
-        return post_process_output(output)
+        return self.post_process_output(output)
 
     def annotate_pmid(self, pmid):
         pmid = pmid.strip()
@@ -158,14 +158,14 @@ class BERN2():
                     'text': ""
                 }
 
-        return post_process_output(output)
+        return self.post_process_output(output)
 
     def post_process_output(self, output):
         # hotfix: split_cuis (e.g., "OMIM:608627,MESH:C563895" => ["OMIM:608627","MESH:C563895"])
-        output = split_cuis(output)
+        output = self.split_cuis(output)
 
         # standardize prefixes (e.g., EntrezGene:10533 => NCBIGene:10533)
-        output = standardize_prefixes(output)
+        output = self.standardize_prefixes(output)
 
         return output
 
