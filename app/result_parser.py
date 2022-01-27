@@ -33,7 +33,7 @@ COLOR_DICT = {
 #         curie = "NCBITaxon:" + curie[len("NCBI:txid"):]
 #     return bioregistry.get_iri(curie)
 
- def id2url(_id): 
+def id2url(_id): 
      if "MESH" in _id: 
          t_id = _id.split(":")[1] 
          return "https://id.nlm.nih.gov/mesh/{}.html".format(t_id) 
