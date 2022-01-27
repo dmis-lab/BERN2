@@ -4,9 +4,6 @@ We present **BERN2** (Advanced **B**iomedical **E**ntity **R**ecognition and **N
 
 ***** **Try BERN2 at [http://bern2.korea.ac.kr](http://bern2.korea.ac.kr)** ***** 
 
-### Updates
-* \[**Jan 28, 2022**\] [Bioregistry](https://bioregistry.io/) is used to standardize prefixes for normalized entity identifiers.
-
 ## Installing BERN2
 
 You first need to install BERN2 and its dependencies.
