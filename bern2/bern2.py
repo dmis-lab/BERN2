@@ -133,10 +133,13 @@ class BERN2():
                 # hotfix
                 if 'pmid' not in output:
                     self.caching_db.delete_one({'_id': pmid})
+                    output = None
                 elif 'error_code' in output and output['error_code'] != 0:
                     self.caching_db.delete_one({'_id': pmid})
+                    output = None
+        
         # otherwise, get pubmed article from web and annotate the text
-        else:    
+        if output is None:    
             text, status_code = self.get_text_data_from_pubmed(pmid)
 
             if status_code == 200:
