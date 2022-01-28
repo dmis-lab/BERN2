@@ -237,7 +237,7 @@ def get_bestplus_spans(mutations, title_space_abstract):
                 start = title_space_abstract.index(m['mention'], start + 1)
                 assert start > -1
                 found += 1
-        except ValeuError:
+        except ValueError:
             # hotfix for tmvar wrong mention
             continue
             
