@@ -1,5 +1,5 @@
-input_path = "../normalization/resources/rawdata/cellosaurus_20210520.txt"
-output_path = "../normalization/resources/dictionary/best_dict_CellLine_20210520.txt"
+input_path = "../resources/normalization/resources/rawdata/cellosaurus_20210520.txt"
+output_path = "../resources/normalization/resources/dictionary/best_dict_CellLine_20210520.txt"
 
 cui2names = {}
 with open(input_path) as f:
