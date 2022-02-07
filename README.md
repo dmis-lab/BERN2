@@ -65,7 +65,7 @@ bash start_bern2.sh
 
 ## Annotations
 
-Click [here](http://nlp.dmis.korea.edu/projects/bern2/annotations/anntation_v1.1.tar.gz) to download the annotations (NER and normalization) for 26.2+ millions of PubMed articles (From pubmed21n0001 to pubmed21n1062 (2021.01.12)) (Compressed, 18 GB).
+Click [here](http://nlp.dmis.korea.edu/projects/bern2/annotations/annotation_v1.1.tar.gz) to download the annotations (NER and normalization) for 26.2+ millions of PubMed articles (From pubmed21n0001 to pubmed21n1062 (2021.01.12)) (Compressed, 18 GB).
 
 The data provided by BERN2 is post-processed and may differ from the most current/accurate data available from [U.S. National Library of Medicine (NLM)](https://www.nlm.nih.gov/).
 
