@@ -362,14 +362,16 @@ def pubtator2dict_list(pubtator_file_path):
                 abstract_cols = line.split('|a|')
 
                 if len(abstract_cols) != 2:
-                    return '{"error": "wrong #abstract_cols {}"}' \
-                        .format(len(abstract_cols))
-
-                if '- No text -' == abstract_cols[1]:
-                    # make tmvar2 results empty
-                    abstract_text = ''
+                    if len(abstract_cols) > 2:
+                        abstract_text = "|a|".join(abstract_cols[1:])
+                    else:
+                        return '{"error": "wrong #abstract_cols {}"}'.format(len(abstract_cols))
                 else:
-                    abstract_text = abstract_cols[1]
+                    if '- No text -' == abstract_cols[1]:
+                        # make tmvar2 results empty
+                        abstract_text = ''
+                    else:
+                        abstract_text = abstract_cols[1]
 
             doc_line_num += 1
     return dict_list
