@@ -63,12 +63,12 @@ def pubtator2dict_list(pubtator_file_path):
                     else:
                         return '{"error": "wrong #abstract_cols {}"}' \
                             .format(len(abstract_cols))
-
-                if '- No text -' == abstract_cols[1]:
-                    # make tmvar2 results empty
-                    abstract_text = ''
                 else:
-                    abstract_text = abstract_cols[1]
+                    if '- No text -' == abstract_cols[1]:
+                        # make tmvar2 results empty
+                        abstract_text = ''
+                    else:
+                        abstract_text = abstract_cols[1]
             elif doc_line_num > 1:
                 mutation_cols = line.split('\t')
 
