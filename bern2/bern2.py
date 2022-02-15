@@ -212,9 +212,13 @@ class BERN2():
                 preferred_prefix = bioregistry.get_preferred_prefix(prefix)
                 if preferred_prefix is not None:
                     prefix = preferred_prefix
-                    
+                
+                # to convert CVCL_J260 to cellosaurus:CVCL_J260
+                if prefix == 'cellosaurus':
+                    numbers = "CVCL_" + numbers
+
                 new_cuis.append(":".join([prefix,numbers]))
-            
+
             anno['id'] = new_cuis
 
         return output

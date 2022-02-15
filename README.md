@@ -4,6 +4,18 @@ We present **BERN2** (Advanced **B**iomedical **E**ntity **R**ecognition and **N
 
 ***** **Try BERN2 at [http://bern2.korea.ac.kr](http://bern2.korea.ac.kr)** ***** 
 
+### Updates
+* \[**Feb 15, 2022**\] [Bioregistry](https://bioregistry.io/) is used to standardize prefixes for normalized entity identifiers.
+
+| old | new |
+| :---:   | :-: |
+| MESH:D009369  | [mesh:D009369](https://bioregistry.io/mesh:D009369)  |
+| OMIM:608627 | [mim:608627](https://bioregistry.io/mim:608627) |
+| CL_0000021 | [CL:0000021](https://bioregistry.io/CL:0000021) |
+| CVCL_J260 | [cellosaurus:CVCL_J260](https://bioregistry.io/cellosaurus:CVCL_J260) |
+| NCBI:txid10095 | [NCBITaxon:10095](https://bioregistry.io/NCBITaxon:10095) |
+| EntrezGene:10533 |[NCBIGene:10533](https://bioregistry.io/NCBIGene:10533) |
+
 ## Installing BERN2
 
 You first need to install BERN2 and its dependencies.
