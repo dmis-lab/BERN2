@@ -15,41 +15,19 @@ COLOR_DICT = {
 }
 
 
-# # TODO! pending using bioregistry due to latency of bioregistry.get_iri()
-# def id2url(curie: str) -> Optional[str]:
-#     """Generate a URL for the given compact URI (CURIE), if possible.
+def id2url(_id):
+    """Generate a URL for the given compact URI (CURIE), if possible.
 
-#     :param curie: A compact URI (CURIE) in the form of `prefix:identifier`
-#     :returns: A URL string if the Bioregistry can construct one, otherwise None.
+    :param curie: A compact URI (CURIE) in the form of `prefix:identifier`
+    :returns: A URL string if the Bioregistry can construct one, otherwise None.
 
-#     >>> id2url("MESH:C063233")
-#     'https://meshb.nlm.nih.gov/record/ui?ui=C063233'
-#     >>> id2url("NCBI:txid10095")
-#     'https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=10095'
-#     """
-#     if curie.startswith("NCBI:txid"):
-#         # If the CURIE is using non-standard NCBI taxonomy identifiers,
-#         # do a small amount of string pre-processing to fix the prefix
-#         curie = "NCBITaxon:" + curie[len("NCBI:txid"):]
-#     return bioregistry.get_iri(curie)
+    >>> id2url("mesh:D009369")
+    'https://bioregistry.io/mesh:D009369'
+    >>> id2url("NCBIGene:10533")
+    'https://bioregistry.io/NCBIGene:10533'
+    """
 
-def id2url(_id): 
-     if "MESH" in _id: 
-         t_id = _id.split(":")[1] 
-         return "https://id.nlm.nih.gov/mesh/{}.html".format(t_id) 
-     elif "OMIM" in _id: 
-         t_id = _id.split(":")[1] 
-         return "https://omim.org/entry/{}".format(t_id) 
-     elif "EntrezGene" in _id: 
-         t_id = _id.split(":")[1] 
-         return "https://www.ncbi.nlm.nih.gov/gene/{}".format(t_id) 
-     elif "CVCL" in _id: 
-         return "https://web.expasy.org/cellosaurus/{}".format(_id) 
-     elif "NCBI" in _id: 
-         t_id = _id.split(":")[1] 
-         return "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id={}".format(t_id) 
-     else: 
-         return "" 
+    return f"https://bioregistry.io/{_id}"
 
 
 class Denotation:
