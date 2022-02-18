@@ -105,14 +105,14 @@ class BERN2():
             text = self.preprocess_input(text, base_name)
             output = self.tag_entities(text, base_name)
             output['error_code'], output['error_message'] = 0, ""
-
+            output = self.post_process_output(output)
         except Exception as e:
             errStr = traceback.format_exc()
             print(errStr)
-            
+
             output = {"error_code": 1, "error_message": "Something went wrong. Try again."}
-        
-        return self.post_process_output(output)
+
+        return output
 
     def annotate_pmid(self, pmid):
         pmid = pmid.strip()
@@ -173,17 +173,14 @@ class BERN2():
         return output
 
     def split_cuis(self, output):
-        # "OMIM:608627,MESH:C563895" 
+        # "OMIM:608627,MESH:C563895" or "OMIM:608627|MESH:C563895" 
         # => ["OMIM:608627","MESH:C563895"]
 
         for anno in output['annotations']:
-            # hotfix for mutation
-            if anno['obj'] == 'mutation':
-                continue
             cuis = anno['id']
             new_cuis = []
             for cui in cuis:
-                new_cuis += cui.split(",")
+                new_cuis += cui.replace("|", ",").split(",")
             anno['id'] = new_cuis                 
         return output
 

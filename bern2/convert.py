@@ -286,7 +286,7 @@ def bern2pub_annotation(entity_dict, bern_dict, text):
 
             # TODO prevention in the previous step
             if 'id' not in entity:
-                entity['id'] = ['CUI-less']
+                entity['id'] = 'CUI-less'
 
             assert 'id' in entity, \
                 '{}, entity={}, entity_dict={}'.format(
