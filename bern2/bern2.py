@@ -177,6 +177,9 @@ class BERN2():
         # => ["OMIM:608627","MESH:C563895"]
 
         for anno in output['annotations']:
+            # hotfix for mutation
+            if anno['obj'] == 'mutation':
+                continue
             cuis = anno['id']
             new_cuis = []
             for cui in cuis:
