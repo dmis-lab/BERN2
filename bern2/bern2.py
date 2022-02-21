@@ -456,14 +456,16 @@ class BERN2():
             span2mentions[span] = sorted(span2mentions[span], key=lambda x:(x['check_CUI'], x['prob']), reverse=True)
 
         for entity_type, entity_dict in tagged_docs[0]['entities'].items():
+            update_list = []
             for mention_idx, mention_dict in enumerate(entity_dict):
                 start = mention_dict['start']
                 end = mention_dict['end']
                 
-                if span2mentions["%d-%d"%(start, end)][0]['CUI'] != mention_dict['id'] or span2mentions["%d-%d"%(start, end)][0]['type'] != entity_type:
-                    del tagged_docs[0]['entities'][entity_type][mention_idx]
-                    del tagged_docs[0]['prob'][entity_type][mention_idx]
+                if span2mentions["%d-%d"%(start, end)][0]['CUI'] == mention_dict['id'] and span2mentions["%d-%d"%(start, end)][0]['type'] == entity_type:
+                    update_list.append(mention_dict)
 
+            tagged_docs[0]['entities'].update({entity_type:update_list})
+            
         # [Step 2] add mutation annotation
         tagged_docs[0]['entities']['mutation'] = tmvar_docs[0]['entities']['mutation']
                        
