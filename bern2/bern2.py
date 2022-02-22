@@ -127,6 +127,7 @@ class BERN2():
             return output
 
         # if pmid is cached in db, return it
+        output = None
         if self.caching_db:
             output = self.caching_db.find_one({"_id": pmid})
             if output:
