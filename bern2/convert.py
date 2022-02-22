@@ -300,17 +300,7 @@ def bern2pub_annotation(entity_dict, bern_dict, text):
             else:
                 eid = [entity['id']]
                 
-            entity_pa_dict = {
-                'id': eid,
-                'span': {
-                    'begin': entity['start'],
-                    'end': entity['end']
-                },
-                'obj': etype,
-                'mention': text[entity['start']:entity['end']],
-                'prob':bern_dict['prob'][etype][entity_idx][1] if etype in bern_dict['prob'] and bern_dict['prob'][etype][entity_idx][1] else None,
-                'is_neural_normalized': entity['is_neural_normalized'] if 'is_neural_normalized' in entity else False
-            }
+            entity_pa_dict = {}
 
             if 'mutation' == etype:
                 assert 'mutationType' in entity \
@@ -320,6 +310,19 @@ def bern2pub_annotation(entity_dict, bern_dict, text):
 
                 entity_pa_dict['mutationType'] = entity['mutationType']
                 entity_pa_dict['normalizedName'] = entity['normalizedName']
+                entity['end'] += 1 # tmvar2 end span makes one character shift in mention
+
+            entity_pa_dict.update({
+                'id': eid,
+                'span': {
+                    'begin': entity['start'],
+                    'end': entity['end']
+                },
+                'obj': etype,
+                'mention': text[entity['start']:entity['end']],
+                'prob':bern_dict['prob'][etype][entity_idx][1] if etype in bern_dict['prob'] and bern_dict['prob'][etype][entity_idx][1] else None,
+                'is_neural_normalized': entity['is_neural_normalized'] if 'is_neural_normalized' in entity else False
+            })
 
             entity_list.append(entity_pa_dict)
 
