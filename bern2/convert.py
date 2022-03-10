@@ -299,9 +299,8 @@ def bern2pub_annotation(entity_dict, bern_dict, text):
                 eid = entity['id'].split('\t')
             else:
                 eid = [entity['id']]
-                
+            
             entity_pa_dict = {}
-
             if 'mutation' == etype:
                 assert 'mutationType' in entity \
                        and 'normalizedName' in entity, \

@@ -77,9 +77,7 @@ if __name__ == "__main__":
     argparser.add_argument('--max_seq_length', type=int, help='The maximum total input sequence length after tokenization. Sequences longer than this will be truncated, sequences shorter will be padded.',
                             default=128)
     argparser.add_argument('--mtner_home',
-                           help='biomedical language model home',
-                           default=os.path.join(os.path.expanduser('~'),
-                                                'bern', 'mtnerHome'))
+                           help='biomedical language model home')         
     argparser.add_argument('--mtner_host',
                            help='biomedical language model host', default='localhost')
     argparser.add_argument('--mtner_port', type=int, 

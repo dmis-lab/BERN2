@@ -181,6 +181,10 @@ class BERN2():
             cuis = anno['id']
             new_cuis = []
             for cui in cuis:
+                # hotfix in case cui is ['cui-less']
+                if isinstance(cui, list):
+                    cui = cui[0]
+
                 new_cuis += cui.replace("|", ",").split(",")
             anno['id'] = new_cuis                 
         return output
@@ -219,11 +223,11 @@ class BERN2():
                     numbers = "CVCL_" + numbers
 
                 new_cuis.append(":".join([prefix,numbers]))
-
+            
             anno['id'] = new_cuis
 
         return output
-                
+
     def get_text_data_from_pubmed(self, pmid):
         title = ""
         abstract = ""
@@ -394,6 +398,10 @@ class BERN2():
                 ent_type='drug', 
                 tagged_docs=tagged_docs
             )
+            tagged_docs = self.normalizer.neural_normalize(
+                ent_type='gene', 
+                tagged_docs=tagged_docs
+            )
 
         tagged_docs = self.resolve_overlap(tagged_docs, tmvar_docs)
         n_norm_elapse_time = time.time() - n_norm_start_time
@@ -466,7 +474,7 @@ class BERN2():
                     update_list.append(mention_dict)
 
             tagged_docs[0]['entities'].update({entity_type:update_list})
-            
+
         # [Step 2] add mutation annotation
         tagged_docs[0]['entities']['mutation'] = tmvar_docs[0]['entities']['mutation']
                        

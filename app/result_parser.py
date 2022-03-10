@@ -14,7 +14,6 @@ COLOR_DICT = {
     'cell_type': (153, 153, 153)
 }
 
-
 def id2url(_id):
     """Generate a URL for the given compact URI (CURIE), if possible.
 
@@ -28,7 +27,6 @@ def id2url(_id):
     """
 
     return f"https://bioregistry.io/{_id}"
-
 
 class Denotation:
     def __init__(self, obj_id=None, point=None, offset=None, key=None, info=None, type=None, mention=None):
@@ -108,12 +106,7 @@ class Denotation:
     
     def id2anchor(self):
         if self.key == "mutation":
-            _url = id2url(self.info['normalizedName'])
-
-            if _url == "":
-                anchor_text = "{}{}".format(self.info['normalizedName'], self.mark)
-            else:
-                anchor_text = "<a href='{}' target='_blank'>{}</a>{}".format(_url, self.info['normalizedName'], self.mark)
+            anchor_text = "{}{}".format(self.info['normalizedName'], self.mark)
         else:
             anchor_texts = []
             for _id in self.ids:

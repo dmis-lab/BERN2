@@ -41,23 +41,24 @@ class Normalizer:
         self.NEURAL_NORM_MODEL_PATH = {
             'disease':'dmis-lab/biosyn-sapbert-bc5cdr-disease',
             'drug':'dmis-lab/biosyn-sapbert-bc5cdr-chemical',
+            'gene':'dmis-lab/biosyn-sapbert-bc2gn',
         }
         self.NEURAL_NORM_CACHE_PATH = {
             'disease':os.path.join(self.BASE_DIR,
                     'normalizers/neural_norm_caches/dict_Disease_20210630.txt.pk'),
             'drug':os.path.join(self.BASE_DIR,
                     'normalizers/neural_norm_caches/dict_ChemicalCompound_20210630.txt.pk'),
+            'gene':os.path.join(self.BASE_DIR,
+                    'normalizers/neural_norm_caches/dict_Gene.txt.pk'),
         }
         
-        self.NORM_MODEL_VERSION = 'dmis ne norm v.20210830'
+        self.NORM_MODEL_VERSION = 'dmis ne norm v.20220226'
 
         self.HOST = '127.0.0.1'
 
         # normalizer port
         self.GENE_PORT = gene_port
         self.DISEASE_PORT = disease_port
-        # self.GENE_PORT = 18888
-        # self.DISEASE_PORT = 18892
 
         self.NO_ENTITY_ID = 'CUI-less'
 
@@ -69,6 +70,7 @@ class Normalizer:
         # neural normalizer
         self.neural_disease_normalizer = None
         self.neural_chemical_normalizer = None
+        self.neural_gene_normalizer = None
         self.use_neural_normalizer = use_neural_normalizer
 
         if self.use_neural_normalizer:
@@ -84,6 +86,12 @@ class Normalizer:
                 cache_path=self.NEURAL_NORM_CACHE_PATH['drug'],
             )
             print(f"neural_chemical_normalizer is loaded.. model={self.NEURAL_NORM_MODEL_PATH['drug']} , dictionary={self.NEURAL_NORM_CACHE_PATH['drug']}")
+
+            self.neural_gene_normalizer = NeuralNormalizer(
+                model_name_or_path=self.NEURAL_NORM_MODEL_PATH['gene'],
+                cache_path=self.NEURAL_NORM_CACHE_PATH['gene'],
+            )
+            print(f"neural_gene_normalizer is loaded.. model={self.NEURAL_NORM_MODEL_PATH['gene']} , dictionary={self.NEURAL_NORM_CACHE_PATH['gene']}")
 
 
     def normalize(self, base_name, doc_dict_list):
@@ -186,6 +194,10 @@ class Normalizer:
             )
         elif ent_type == 'drug':
             norm_entities = self.neural_chemical_normalizer.normalize(
+                names=cuiless_entity_names, 
+            )
+        elif ent_type == 'gene':
+            norm_entities = self.neural_gene_normalizer.normalize(
                 names=cuiless_entity_names, 
             )
         
