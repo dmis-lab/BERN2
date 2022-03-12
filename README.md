@@ -47,7 +47,7 @@ sudo systemctl status mongod
 Then, you need to download resources (e.g., external modules or dictionaries) for running BERN2. Note that you will need 70GB of free disk space. If the link below does not work, please download the resources [here](https://drive.google.com/file/d/1BtCA_DDiASl8Qa17ybAnmvdqp4tuc0nN/view?usp=sharing).
 
 ```
-wget http://nlp.dmis.korea.edu/projects/bern2/resources_v1.1.tar.gz
+wget https://nlp.dmis.korea.edu/projects/bern2-sung-et-al-2022/resources_v1.1.tar.gz
 tar -zxvf resources_v1.1.tar.gz
 rm -rf resources_v1.1.tar.gz
 # install CRF
