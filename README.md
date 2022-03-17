@@ -75,6 +75,35 @@ bash stop_bern2.sh
 bash start_bern2.sh
 ```
 
+## Using BERN2
+
+After running BERN2 successfully in your local environment, you can use it via RESTful API.
+If you want to use BERN2 without locally installing it, please check out [here](http://bern2.korea.ac.kr/documentation#api_content) for using the web service.
+
+### Plain Text as Input
+```
+import requests
+
+def query_plain(text, url="http://localhost:8888/plain"):
+    return requests.post(url, json={'text': text}).json()
+
+if __name__ == '__main__':
+    text = "Autophagy maintains tumour growth through circulating arginine."
+    print(query_plain(text))
+```
+
+### PubMed ID (PMID) as Input
+```
+import requests
+
+def query_pmid(pmids, url="http://localhost:8888/pubmed"):
+    return requests.get(url + "/" + ",".join(pmids)).json()
+
+if __name__ == '__main__':
+    pmids = ["30429607", "29446767"]
+    print(query_pmid(pmids))
+```
+
 ## Annotations
 
 TBD
