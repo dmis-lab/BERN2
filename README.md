@@ -77,8 +77,8 @@ bash start_bern2.sh
 
 ## Using BERN2
 
-After running BERN2 successfully in your local environment, you can use it via RESTful API.
-If you want to use BERN2 without locally installing it, please check out [here](http://bern2.korea.ac.kr/documentation#api_content) for using the web service.
+After successfully running BERN2 in your local environment, you can access it via RESTful API. 
+If you want to use BERN2 without installing it locally, please see [here](http://bern2.korea.ac.kr/documentation#api_content) for instructions on how to use the web service.
 
 ### Plain Text as Input
 ```

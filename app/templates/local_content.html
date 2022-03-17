@@ -34,7 +34,7 @@ sudo systemctl status mongod
 <div class="py-2">
     Then, you need to download resources (e.g., external modules or dictionaries) for running BERN2. 
     Note that you will need 70GB of free disk space. 
-    If the link below does not work, please download the resources [here](https://drive.google.com/file/d/1BtCA_DDiASl8Qa17ybAnmvdqp4tuc0nN/view?usp=sharing).
+    If the link below does not work, please download the resources <a href="https://drive.google.com/file/d/1BtCA_DDiASl8Qa17ybAnmvdqp4tuc0nN/view?usp=sharing">here</a>.
 </div>
 <div class="py-2">
     <pre>
@@ -48,6 +48,7 @@ make
 make install
 cd ../../..
 </pre>
+</div>
 <hr>
 <div class="py-4">
     <h3>Running BERN2</h3>
@@ -66,11 +67,43 @@ bash run_bern2.sh
     (Optional) To restart BERN2, you need to run the following commands.
 </div>
 <div class="py-2">
-    <pre>
+<pre>
 export CUDA_VISIBLE_DEVICES=0
 cd scripts
 bash stop_bern2.sh
 bash start_bern2.sh
 </pre>
 </div>
+<div class="py-4">
+    <h3>Use BERN2</h3>
+</div>
+<div class="py-2">
+    After successfully running BERN2 in your local environment, you can access it via RESTful API. 
+    Except for the url (use http://localhost:8888 instead of http://bern2.korea.ac.kr), the usage of the local installation is exactly the same as that of the <a href="#api_content" class="nav-link active" data-toggle="tab">web service</a>.
+</div>
+<div class="py-2">
+    <p class="font-weight-bold">Plain Text as Input</p>
+    <pre>
+import requests
+
+def query_plain(text, url="http://localhost:8888/plain"):
+    return requests.post(url, json={'text': text}).json()
+
+if __name__ == '__main__':
+    text = "Autophagy maintains tumour growth through circulating arginine."
+    print(query_plain(text))
+</pre>
+</div>
+<div class="py-2">
+    <p class="font-weight-bold">PubMed ID (PMID) as Input</p>
+    <pre>
+import requests
+
+def query_pmid(pmids, url="http://localhost:8888/pubmed"):
+    return requests.get(url + "/" + ",".join(pmids)).json()
+
+if __name__ == '__main__':
+    pmids = ["30429607", "29446767"]
+    print(query_pmid(pmids))
+</pre>
 </div>
