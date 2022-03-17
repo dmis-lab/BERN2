@@ -5,6 +5,7 @@ We present **BERN2** (Advanced **B**iomedical **E**ntity **R**ecognition and **N
 ***** **Try BERN2 at [http://bern2.korea.ac.kr](http://bern2.korea.ac.kr)** ***** 
 
 ### Updates
+* \[**Mar 17, 2022**\] [BERN2 v1.1](https://github.com/dmis-lab/BERN2/releases/tag/v1.1.0) has been released. Please see the release page for more information on what's new in this version.
 * \[**Feb 15, 2022**\] [Bioregistry](https://bioregistry.io/) is used to standardize prefixes for normalized entity identifiers.
 
 | old | new |
