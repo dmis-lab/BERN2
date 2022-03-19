@@ -49,7 +49,7 @@ cd ../../../..
 ####################################
 #####       Run BERN2          #####
 ####################################
-sudo env "PATH=$PATH" python -u server.py \
+sudo env "PATH=$PATH" nohup python -u server.py \
     --mtner_home ./multi_ner \
     --mtner_port 18894 \
     --gnormplus_home ./resources/GNormPlusJava \
@@ -59,4 +59,7 @@ sudo env "PATH=$PATH" python -u server.py \
     --gene_norm_port 18888 \
     --disease_norm_port 18892 \
     --use_neural_normalizer \
-    --port 8888
+    --port 8888 \
+    >> logs/nohup_bern2.out 2>&1 &
+
+tail -f logs/nohup_bern2.out
