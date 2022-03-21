@@ -35,8 +35,11 @@ class NeuralNormalizer(object):
         self.batch_size = 1024
         self.k = 1 # top 1
 
+        self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        
         self.tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
-        self.model = AutoModel.from_pretrained(model_name_or_path).cuda()
+        self.model = AutoModel.from_pretrained(model_name_or_path).to(self.device)
+        # self.model = AutoModel.from_pretrained(model_name_or_path).cuda()
         
         # for basic normalization
         self.rmv_puncts_regex = re.compile(r'[\s{}]+'.format(re.escape(punctuation)))
