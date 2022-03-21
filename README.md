@@ -76,7 +76,7 @@ bash run_bern2.sh
 export CUDA_VISIBLE_DEVICES=0
 cd scripts
 bash stop_bern2.sh
-bash start_bern2.sh
+bash run_bern2.sh
 ```
 
 ## Using BERN2
