@@ -1,7 +1,7 @@
 import os
 import json
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, Response
 
 try:
     from .result_parser import ResultParser
