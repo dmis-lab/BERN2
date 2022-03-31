@@ -8,7 +8,7 @@ mkdir logs
 ####################################
 
 # run neural NER
-nohup python multi_ner/ner_server.py \
+start python multi_ner/ner_server.py \
     --mtner_home multi_ner \
     --mtner_port 18894 >> logs/nohup_multi_ner.out 2>&1 &
 
@@ -16,12 +16,12 @@ cd resources
 
 # run gnormplus
 cd GNormPlusJava
-nohup java -Xmx16G -Xms16G -jar GNormPlusServer.main.jar 18895 >> ../../logs/nohup_gnormplus.out 2>&1 &
+start java -Xmx16G -Xms16G -jar GNormPlusServer.main.jar 18895 >> ../../logs/nohup_gnormplus.out 2>&1 &
 cd ..
 
 # run tmVar
 cd tmVarJava
-nohup java -Xmx8G -Xms8G -jar tmVar2Server.main.jar 18896 >> ../../logs/nohup_tmvar.out 2>&1 &
+start java -Xmx8G -Xms8G -jar tmVar2Server.main.jar 18896 >> ../../logs/nohup_tmvar.out 2>&1 &
 cd ..
 
 ####################################
@@ -30,7 +30,7 @@ cd ..
 
 # Disease (working dir: normalization/)
 cd normalization
-nohup java -Xmx16G -jar normalizers/disease/disease_normalizer_21.jar \
+start java -Xmx16G -jar normalizers/disease/disease_normalizer_21.jar \
     "inputs/disease" \
     "outputs/disease" \
     "dictionary/dict_Disease_20210630.txt" \
@@ -41,7 +41,7 @@ nohup java -Xmx16G -jar normalizers/disease/disease_normalizer_21.jar \
 
 # Gene (working dir: normalization/normalizers/gene/, port:18888)
 cd normalizers/gene
-nohup java -Xmx20G -jar gnormplus-normalization_21.jar \
+start java -Xmx20G -jar gnormplus-normalization_21.jar \
     18888 \
     >> ../../../../logs/nohup_gene_normalize.out 2>&1 &
 cd ../../../..
@@ -49,7 +49,7 @@ cd ../../../..
 ####################################
 #####       Run BERN2          #####
 ####################################
-sudo env "PATH=$PATH" nohup python -u server.py \
+sudo env "PATH=$PATH" start python -u server.py \
     --mtner_home ./multi_ner \
     --mtner_port 18894 \
     --gnormplus_home ./resources/GNormPlusJava \

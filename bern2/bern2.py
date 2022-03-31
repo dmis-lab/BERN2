@@ -372,7 +372,7 @@ class BERN2():
         shutil.move(output_tmvar_ner, input_tmvar_norm)
         sync_tell_inputfile(self.tmvar2_host,
                        self.tmvar2_port,
-                       input_tmvar_norm.split("/")[-1] + "|" + input_tmvar_gene.split("/")[-1]) # need to refactor
+                       os.path.basename(input_tmvar_norm) + "|" + os.path.basename(input_tmvar_gene))
         tmvar2_elapse_time += time.time() - tm_norm_start_time # add normalization time 
 
         tmvar_docs = pubtator2dict_list(output_tmvar_norm)
