@@ -49,7 +49,7 @@ cd ../../../..
 ####################################
 #####       Run BERN2          #####
 ####################################
-sudo env "PATH=$PATH" nohup python -u server.py \
+env "PATH=$PATH" nohup python -u server.py \
     --mtner_home ./multi_ner \
     --mtner_port 18894 \
     --gnormplus_home ./resources/GNormPlusJava \
