@@ -71,7 +71,12 @@ The following command runs BERN2.
 ```
 export CUDA_VISIBLE_DEVICES=0
 cd scripts
+
+# For Linux and MacOS
 bash run_bern2.sh
+
+# For Windows
+bash run_bern2_windows.sh
 ```
 
 (Optional) To restart BERN2, you need to run the following commands.
