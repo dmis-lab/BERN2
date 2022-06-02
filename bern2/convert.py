@@ -309,7 +309,7 @@ def bern2pub_annotation(entity_dict, bern_dict, text):
 
                 entity_pa_dict['mutationType'] = entity['mutationType']
                 entity_pa_dict['normalizedName'] = entity['normalizedName']
-                entity['end'] += 1 # tmvar2 end span makes one character shift in mention
+            entity['end'] += 1
 
             entity_pa_dict.update({
                 'id': eid,
