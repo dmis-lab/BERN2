@@ -148,11 +148,8 @@ def sentence_split(text):
 def get_prob(data, sent_data, predicDict, logitsDict, entity_types=None):
     for idx, paper in enumerate(data):
         pmid = paper['pmid']
-        
-        if len(paper['abstract']) > 0:
-            content = paper['title'] + ' ' + paper['abstract']
-        else:
-            content = paper['title']
+
+        content = paper['abstract']
 
         for ent_type in entity_types:
             paper['entities'][ent_type] = []
