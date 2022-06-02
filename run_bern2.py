@@ -10,7 +10,7 @@ from datetime import datetime
 import bioregistry
 import numpy as np
 
-from multi_ner.convert import get_pub_annotation
+from bern2.convert import get_pub_annotation
 # from bern2.normalizer import Normalizer
 from multi_ner.main import MTNER
 from multi_ner.ner_server import mtner_recognize
@@ -43,6 +43,8 @@ class LocalBERN2():
 
         # FOR NER
         self.mtner_home = mtner_home
+        if not os.path.exists(self.mtner_home):
+            os.mkdir(self.mtner_home)
 
         self.max_word_len = max_word_len
 
