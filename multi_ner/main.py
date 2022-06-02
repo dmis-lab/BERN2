@@ -15,7 +15,6 @@
 # limitations under the License.
 """ Fine-tuning the library models for named entity recognition on CoNLL-2003. """
 
-
 import logging
 import os
 import time
@@ -39,20 +38,21 @@ from transformers import (
     PreTrainedTokenizer,
 )
 
-from ops import (
-    json_to_sent, 
-    input_form, 
+from multi_ner.ops import (
+    json_to_sent,
+    input_form,
     get_prob,
-    detokenize, 
-    preprocess, 
-    Profile, 
+    detokenize,
+    preprocess,
+    Profile,
 )
-from modeling import RoBERTaMultiNER2
+from multi_ner.modeling import RoBERTaMultiNER2
 
 logger = logging.getLogger(__name__)
 
 InputDataClass = NewType("InputDataClass", Any)
 DataCollator = NewType("DataCollator", Callable[[List[InputDataClass]], Dict[str, torch.Tensor]])
+
 
 @dataclass
 class InputExample:
@@ -71,6 +71,7 @@ class InputExample:
     labels: Optional[List[str]]
     entity_labels: Optional[List[int]]
 
+
 @dataclass
 class InputFeatures:
     """
@@ -83,6 +84,7 @@ class InputFeatures:
     token_type_ids: Optional[List[int]] = None
     label_ids: Optional[List[int]] = None
     entity_type_ids: Optional[List[int]] = None
+
 
 class DataProcessor(object):
     """Base class for data converters for sequence classification data sets."""
@@ -123,7 +125,7 @@ class DataProcessor(object):
                                       if len(word) > 0])
                         e = ' '.join([el for el
                                       in entity_labels[:len(tmplabel)]
-                                      if len(el) > 0])              
+                                      if len(el) > 0])
                         lines.append([l, w, e])
                         words = words[len(tmplabel):]
                         labels = labels[len(tmplabel):]
@@ -142,20 +144,22 @@ class DataProcessor(object):
 
         return lines
 
+
 class NerDataset(Dataset):
     """
         This will be superseded by a framework-agnostic approach soon.
     """
     features: List[InputFeatures]
     pad_token_label_id: int = nn.CrossEntropyLoss().ignore_index
+
     def __init__(
-        self,
-        predict_examples,
-        labels: List[str],
-        tokenizer: PreTrainedTokenizer,
-        config,
-        params,
-        base_name
+            self,
+            predict_examples,
+            labels: List[str],
+            tokenizer: PreTrainedTokenizer,
+            config,
+            params,
+            base_name
     ):
         logger.info(f"Creating features from dataset file")
         self.labels = labels
@@ -174,7 +178,7 @@ class NerDataset(Dataset):
             cls_token_segment_id=2 if self.config.model_type in ["xlnet"] else 0,
             sep_token=self.tokenizer.sep_token,
             sep_token_extra=False,
-            pad_on_left=bool(self.tokenizer.padding_side=="left"),
+            pad_on_left=bool(self.tokenizer.padding_side == "left"),
             pad_token=self.tokenizer.pad_token_id,
             pad_token_segment_id=self.tokenizer.pad_token_type_id,
             pad_token_label_id=self.pad_token_label_id,
@@ -187,9 +191,11 @@ class NerDataset(Dataset):
     def __getitem__(self, i) -> InputFeatures:
         return self.features[i]
 
+
 class PredictionOutput(NamedTuple):
     predictions: np.ndarray
     label_ids: Optional[np.ndarray]
+
 
 def default_data_collator(features: List[InputDataClass]) -> Dict[str, torch.Tensor]:
     """
@@ -240,22 +246,22 @@ def default_data_collator(features: List[InputDataClass]) -> Dict[str, torch.Ten
 
 
 def convert_examples_to_features(
-    examples: List[InputExample],
-    label_list: List[str],
-    max_seq_length: int,
-    tokenizer: PreTrainedTokenizer,
-    cls_token_at_end=False,
-    cls_token="[CLS]",
-    cls_token_segment_id=1,
-    sep_token="[SEP]",
-    sep_token_extra=False,
-    pad_on_left=False,
-    pad_token=0,
-    pad_token_segment_id=0,
-    pad_token_label_id=-100,
-    sequence_a_segment_id=0,
-    mask_padding_with_zero=True,
-    base_name="",
+        examples: List[InputExample],
+        label_list: List[str],
+        max_seq_length: int,
+        tokenizer: PreTrainedTokenizer,
+        cls_token_at_end=False,
+        cls_token="[CLS]",
+        cls_token_segment_id=1,
+        sep_token="[SEP]",
+        sep_token_extra=False,
+        pad_on_left=False,
+        pad_token=0,
+        pad_token_segment_id=0,
+        pad_token_label_id=-100,
+        sequence_a_segment_id=0,
+        mask_padding_with_zero=True,
+        base_name="",
 ) -> List[InputFeatures]:
     """ Loads a data file into a list of `InputFeatures`
         `cls_token_at_end` define the location of the CLS token:
@@ -267,7 +273,7 @@ def convert_examples_to_features(
 
     label_map = {label: i for i, label in enumerate(label_list)}
     features = []
-    
+
     for (ex_index, example) in tqdm(enumerate(examples)):
         if ex_index % 10_000 == 0:
             logger.info("Writing example %d of %d", ex_index, len(examples))
@@ -277,7 +283,7 @@ def convert_examples_to_features(
 
         for word_idx, (word, label) in enumerate(zip(example.words.split(), example.labels.split())):
             word_tokens = tokenizer.tokenize(word)
-            
+
             # bert-base-multilingual-cased sometimes output "nothing ([]) when calling tokenize with just a space.
             if len(word_tokens) > 0:
                 tokens.extend(word_tokens)
@@ -349,14 +355,14 @@ def convert_examples_to_features(
             det_tokens = [cls_token] + det_tokens
 
         input_ids = tokenizer.convert_tokens_to_ids(tokens)
-        
+
         # The mask has 1 for real tokens and 0 for padding tokens. Only real
         # tokens are attended to.
         input_mask = [1 if mask_padding_with_zero else 0] * len(input_ids)
 
         # Zero-pad up to the sequence length.
         padding_length = max_seq_length - len(input_ids)
-        
+
         if pad_on_left:
             input_ids = ([pad_token] * padding_length) + input_ids
             input_mask = ([0 if mask_padding_with_zero else 1] * padding_length) + input_mask
@@ -393,15 +399,16 @@ def convert_examples_to_features(
 
         if "token_type_ids" not in tokenizer.model_input_names:
             segment_ids = None
-        
+
         features.append(
             InputFeatures(
                 input_ids=input_ids, attention_mask=input_mask, token_type_ids=segment_ids, \
                 label_ids=label_ids, entity_type_ids=entity_type_ids, \
-            )
+                )
         )
         write_tokens(tokens, det_tokens, 'test', base_name)
     return features
+
 
 def write_tokens(tokens, det_tokens, mode, base_name):
     if mode == "test":
@@ -417,11 +424,12 @@ def write_tokens(tokens, det_tokens, mode, base_name):
                     wf.write(token + '\n')
 
         det_path = os.path.join("multi_ner", "tmp",
-                            "det_token_{}_{}.txt".format(mode, base_name))
+                                "det_token_{}_{}.txt".format(mode, base_name))
         with open(det_path, 'a') as wf:
             for token in det_tokens:
                 if token != "**NULL**":
                     wf.write(token + '\n')
+
 
 class NerProcessor(DataProcessor):
     def get_test_examples(self, data_dir):
@@ -446,7 +454,7 @@ class NerProcessor(DataProcessor):
         pmids = list()
         for d in dict_list:
             pmids.append(d["pmid"])
-            
+
         json_file = input_form(json_to_sent(dict_list))
 
         return \
@@ -458,7 +466,7 @@ class NerProcessor(DataProcessor):
 
     def _create_example(self, lines, set_type):
         examples = []
-        for (i,line) in enumerate(lines):
+        for (i, line) in enumerate(lines):
             guid = "%s-%s" % (set_type, i)
             text = line[1]
             label = line[0]
@@ -478,18 +486,18 @@ class MTNER:
 
         # Set ner processor
         self.processor = NerProcessor()
-        
+
         # Setup parsing
         self.params = params
         self.prediction_loss_only = False
 
         # Set seed
         set_seed(self.params.seed)
-        
+
         # Prepare Labels
         self.labels = self.processor.get_labels()
         self.id2label: Dict[int, str] = {i: label for i, label in enumerate(self.labels)}
-        self.label2id = {label:i for i, label in enumerate(self.labels)}
+        self.label2id = {label: i for i, label in enumerate(self.labels)}
         self.num_labels = len(self.labels)
 
         self.config = AutoConfig.from_pretrained(
@@ -516,7 +524,7 @@ class MTNER:
             self.estimator_dict[etype]['log_probs'] = []
 
         self.counter = 0
-        self.pad_token_label_id:int = nn.CrossEntropyLoss().ignore_index
+        self.pad_token_label_id: int = nn.CrossEntropyLoss().ignore_index
         init_end_t = time.time()
         print('MTNER init_t {:.3f} sec.'.format(init_end_t - init_start_t))
 
@@ -532,10 +540,10 @@ class MTNER:
         else:
             raise ValueError('Wrong type')
 
-        token_path = os.path.join("multi_ner", "tmp",        
+        token_path = os.path.join("multi_ner", "tmp",
                                   "token_test_{}.txt".format(base_name))
         det_token_path = os.path.join("multi_ner", "tmp",
-                                  "det_token_test_{}.txt".format(base_name))
+                                      "det_token_test_{}.txt".format(base_name))
 
         if os.path.exists(token_path):
             os.remove(token_path)
@@ -560,7 +568,7 @@ class MTNER:
             for line_idx, line in enumerate(reader):
                 tok = line.strip()
                 tot_tokens.append(tok)
-                
+
                 if tok == '[CLS]' or tok == '<s>':
                     tmp_toks = [tok]
                 elif tok == '[SEP]' or tok == '</s>':
@@ -575,9 +583,8 @@ class MTNER:
 
         # disease, drug, gene, spec, cell_line, dna, rna, cell_type
         for etype_idx, etype in enumerate(self.entity_types):
-            
-            predictions, label_ids = all_type[etype_idx] # batch, seq, labels
-            preds_array = self.align_predictions(predictions) # batch, seq
+            predictions, label_ids = all_type[etype_idx]  # batch, seq, labels
+            preds_array = self.align_predictions(predictions)  # batch, seq
 
             self.out_tag_dict[etype] = (False, None)
             self.recognize_etype(etype, tokens, tot_tokens, predictions, preds_array)
@@ -595,7 +602,7 @@ class MTNER:
 
         # get probability of all mentions
         data_list = get_prob(self.data_list, self.json_dict, self.predict_dict,
-                                  self.prob_dict, entity_types=self.entity_types)
+                             self.prob_dict, entity_types=self.entity_types)
 
         if type(input_dl) is str:
             output_path = os.path.join('result/', os.path.splitext(
@@ -619,14 +626,14 @@ class MTNER:
     @Profile(__name__)
     def recognize_etype(self, etype, tokens, tot_tokens, predictions, preds_array):
         result = []
-        
+
         for one_batch in range(predictions.shape[0]):
-            result.append({'prediction':preds_array[one_batch],
-                           'log_probs':predictions[one_batch]})
+            result.append({'prediction': preds_array[one_batch],
+                           'log_probs': predictions[one_batch]})
 
         predicts = list()
         logits = list()
-        
+
         for pidx, prediction in enumerate(result):
             slen = len(tokens[pidx])
             for p in prediction['prediction'][:slen]:
@@ -685,30 +692,30 @@ class MTNER:
             if self.out_tag_dict[etype][0]:
                 break
 
-    def _predict(self, test_dataset:Dataset):
+    def _predict(self, test_dataset: Dataset):
         sampler = SequentialSampler(test_dataset)
         data_loader = DataLoader(
             test_dataset,
             sampler=sampler,
-            batch_size=32, # you can adjust evaluation batch size, we prefer using 32
+            batch_size=32,  # you can adjust evaluation batch size, we prefer using 32
             collate_fn=default_data_collator,
             drop_last=False,
         )
         return self._prediction_loop(data_loader, description="Prediction")
 
     def _prediction_loop(
-        self, dataloader: DataLoader, description: str, prediction_loss_only: Optional[bool] = None
+            self, dataloader: DataLoader, description: str, prediction_loss_only: Optional[bool] = None
     ) -> PredictionOutput:
         """
         Prediction/evaluation loop, shared by `evaluate()` and `predict()`.
 
         Works both with or without labels.
         """
-        
+
         prediction_loss_only = prediction_loss_only if prediction_loss_only is not None else self.prediction_loss_only
 
         model = self.model
-        
+
         eval_losses: List[float] = []
         dise_preds: torch.Tensor = None
         chem_preds: torch.Tensor = None
@@ -737,7 +744,8 @@ class MTNER:
                     logits = outputs[0]
 
             if not prediction_loss_only:
-                (dise_logits, chem_logits, gene_logits, spec_logits, cl_logits, dna_logits, rna_logits, _, ct_logits) = logits
+                (dise_logits, chem_logits, gene_logits, spec_logits, cl_logits, dna_logits, rna_logits, _,
+                 ct_logits) = logits
                 if dise_preds is None and chem_preds is None and gene_preds is None and spec_preds is None and cl_preds is None and dna_preds is None and rna_preds is None and ct_preds is None:
                     dise_preds = dise_logits.detach()
                     chem_preds = chem_logits.detach()
@@ -776,14 +784,14 @@ class MTNER:
             label_ids = label_ids.cpu().numpy()
 
         return_output = (PredictionOutput(predictions=dise_preds, label_ids=label_ids), \
-                        PredictionOutput(predictions=chem_preds, label_ids=label_ids), \
-                        PredictionOutput(predictions=gene_preds, label_ids=label_ids), \
-                        PredictionOutput(predictions=spec_preds, label_ids=label_ids), \
-                        PredictionOutput(predictions=cl_preds, label_ids=label_ids), \
-                        PredictionOutput(predictions=dna_preds, label_ids=label_ids), \
-                        PredictionOutput(predictions=rna_preds, label_ids=label_ids), \
-                        PredictionOutput(predictions=ct_preds, label_ids=label_ids))
-                        
+                         PredictionOutput(predictions=chem_preds, label_ids=label_ids), \
+                         PredictionOutput(predictions=gene_preds, label_ids=label_ids), \
+                         PredictionOutput(predictions=spec_preds, label_ids=label_ids), \
+                         PredictionOutput(predictions=cl_preds, label_ids=label_ids), \
+                         PredictionOutput(predictions=dna_preds, label_ids=label_ids), \
+                         PredictionOutput(predictions=rna_preds, label_ids=label_ids), \
+                         PredictionOutput(predictions=ct_preds, label_ids=label_ids))
+
         return return_output
 
     def align_predictions(self, predictions: np.ndarray) -> List[int]:
@@ -791,22 +799,24 @@ class MTNER:
         batch_size, seq_len = preds.shape
 
         preds_list = [[] for _ in range(batch_size)]
-        
+
         for i in range(batch_size):
             for j in range(seq_len):
                 preds_list[i].append(preds[i][j])
 
         return np.array(preds_list)
 
+
 def main():
-    os.environ["CUDA_VISIBLE_DEVICES"]="0"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
     argparser = argparse.ArgumentParser()
     argparser.add_argument('--model_name_or_path', default='dmis-lab/bern2-ner')
-    argparser.add_argument('--max_seq_length', type=int, help='The maximum total input sequence length after tokenization. Sequences longer than this will be truncated, sequences shorter will be padded.',
-                            default=128)
+    argparser.add_argument('--max_seq_length', type=int,
+                           help='The maximum total input sequence length after tokenization. Sequences longer than this will be truncated, sequences shorter will be padded.',
+                           default=128)
     argparser.add_argument('--seed', type=int, help='random seed for initialization',
-                            default=1)
+                           default=1)
     args = argparser.parse_args()
 
     mtner = MTNER(args)
