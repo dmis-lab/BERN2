@@ -5,6 +5,7 @@ We present **BERN2** (Advanced **B**iomedical **E**ntity **R**ecognition and **N
 ***** **Try BERN2 at [http://bern2.korea.ac.kr](http://bern2.korea.ac.kr)** ***** 
 
 ### Updates
+* \[**Jun 26, 2022**\] We updated our resource file ([resources_v1.1.b.tar.gz](http://nlp.dmis.korea.edu/projects/bern2-sung-et-al-2022/resources_v1.1.b.tar.gz)) to address the issue regarding CRF++. (issue https://github.com/dmis-lab/BERN2/issues/17). 
 * \[**Apr 14, 2022**\] We updated our resource file ([resources_v1.1.a.tar.gz](http://nlp.dmis.korea.edu/projects/bern2-sung-et-al-2022/resources_v1.1.a.tar.gz)) to address the issue where BERN2 is not working on Windows (issue https://github.com/dmis-lab/BERN2/issues/4). 
 * \[**Apr 14, 2022**\] We increased the API limit of our [web service](http://bern2.korea.ac.kr) from '100 reqeusts per 100 seconds' to '**300** requests per 100 seconds' per user.
 * \[**Mar 18, 2022**\] On the [web service](http://bern2.korea.ac.kr), we set the API limit of 100 requests per 100 seconds per user. For bulk requests, we highly recommend you to use the local installation.
@@ -53,16 +54,25 @@ sudo systemctl status mongod
 Then, you need to download resources (e.g., external modules or dictionaries) for running BERN2. Note that you will need 70GB of free disk space.
 
 ```
-wget http://nlp.dmis.korea.edu/projects/bern2-sung-et-al-2022/resources_v1.1.a.tar.gz
-tar -zxvf resources_v1.1.a.tar.gz
-rm -rf resources_v1.1.a.tar.gz
+wget http://nlp.dmis.korea.edu/projects/bern2-sung-et-al-2022/resources_v1.1.b.tar.gz
+tar -zxvf resources_v1.1.b.tar.gz
+rm -rf resources_v1.1.b.tar.gz
 
-# install CRF (Only for Linux/MacOS)
-cd resources/GNormPlusJava/CRF
+# (For Linux/MacOS Users) install CRF 
+cd resources/GNormPlusJava
+tar -zxvf CRF++-0.58.tar.gz
+mv CRF++-0.58 CRF
+cd CRF
 ./configure --prefix="$HOME"
 make
 make install
 cd ../../..
+
+# (For Windows Users) install CRF 
+cd resources/GNormPlusJava
+unzip -zxvf CRF++-0.58.zip
+mv CRF++-0.58 CRF
+cd ../..
 ```
 
 ## Running BERN2
