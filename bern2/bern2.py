@@ -165,6 +165,10 @@ class BERN2():
         return self.post_process_output(output)
 
     def post_process_output(self, output):
+        # hotfix
+        if 'annotations' not in output:
+            return output
+        
         # split_cuis (e.g., "OMIM:608627,MESH:C563895" => ["OMIM:608627","MESH:C563895"])
         output = self.split_cuis(output)
 
