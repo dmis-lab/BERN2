@@ -10,7 +10,8 @@ mkdir logs
 # run neural NER
 start python multi_ner/ner_server.py \
     --mtner_home multi_ner \
-    --mtner_port 18894 >> logs/nohup_multi_ner.out 2>&1 &
+    --mtner_port 18894 \
+    --no_cuda >> logs/nohup_multi_ner.out 2>&1 &
 
 cd resources
 
@@ -58,6 +59,7 @@ env "PATH=$PATH" start python -u server.py \
     --tmvar2_port 18896 \
     --gene_norm_port 18888 \
     --disease_norm_port 18892 \
+    --no_cuda \
     --use_neural_normalizer \
     --port 8888 \
     >> logs/nohup_bern2.out 2>&1 &
