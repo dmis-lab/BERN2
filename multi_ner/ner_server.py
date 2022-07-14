@@ -84,7 +84,7 @@ if __name__ == "__main__":
                            help='biomedical language model port', default=18894)
     argparser.add_argument('--time_format',
                             help='time format', default='[%d/%b/%Y %H:%M:%S.%f]')    
-    
+    argparser.add_argument('--no_cuda', action="store_true", help="Avoid using CUDA when available")
     args = argparser.parse_args()
     mt_ner = MTNER(args)
     

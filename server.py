@@ -49,10 +49,10 @@ def parse():
                         action="store_true")
     parser.add_argument("--keep_files",
                         action="store_true")
-                        
     parser.add_argument("--front_dev",
                         action="store_true")
-    
+    parser.add_argument("--no_cuda",
+                        action="store_true")
     args = parser.parse_args()
     return args
 
