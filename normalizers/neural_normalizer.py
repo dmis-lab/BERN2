@@ -17,12 +17,13 @@ import time
 import faiss
 
 class NamesDataset(torch.utils.data.Dataset):
-    def __init__(self, encodings):
+    def __init__(self, encodings, no_cuda=False):
         self.encodings = encodings
+        self.no_cuda=no_cuda
 
     def __getitem__(self, idx):
-        # TODO! remove cuda()
-        return {key: torch.tensor(val[idx]).cuda() for key, val in self.encodings.items()}
+        return {key: torch.tensor(val[idx]).cuda() for key, val in self.encodings.items()} if not self.no_cuda else \
+                {key: torch.tensor(val[idx]) for key, val in self.encodings.items()}
 
     def __len__(self):
         return len(self.encodings.input_ids)
@@ -30,13 +31,14 @@ class NamesDataset(torch.utils.data.Dataset):
 # TODO! inherit Normalizer class
 class NeuralNormalizer(object):
     # def __init__(self, model_name_or_path, dictionary_path):
-    def __init__(self, model_name_or_path, cache_path=None):
+    def __init__(self, model_name_or_path, cache_path=None, no_cuda=False):
         self.max_length = 25
         self.batch_size = 1024
         self.k = 1 # top 1
 
-        self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
-        
+        self.no_cuda = no_cuda
+        self.device = "cuda:0" if torch.cuda.is_available() and not self.no_cuda else "cpu"
+
         self.tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
         self.model = AutoModel.from_pretrained(model_name_or_path).to(self.device)
         # self.model = AutoModel.from_pretrained(model_name_or_path).cuda()
@@ -74,7 +76,7 @@ class NeuralNormalizer(object):
 
         # tokenize inputs
         name_encodings = self.tokenizer(names, padding="max_length", max_length=self.max_length, truncation=True)
-        name_dataset = NamesDataset(name_encodings)
+        name_dataset = NamesDataset(name_encodings, no_cuda=self.no_cuda)
         name_dataloader = DataLoader(name_dataset, shuffle=False, collate_fn=default_data_collator, batch_size=self.batch_size)
         
         start_time = time.time()
@@ -127,7 +129,7 @@ class NeuralNormalizer(object):
 
         # tokenize names
         name_encodings = self.tokenizer(names, padding="max_length", max_length=self.max_length, truncation=True)
-        name_dataset = NamesDataset(name_encodings)
+        name_dataset = NamesDataset(name_encodings, no_cuda=self.no_cuda)
         name_dataloader = DataLoader(name_dataset, shuffle=False, collate_fn=default_data_collator, batch_size=self.batch_size)
 
         with torch.no_grad():
@@ -169,11 +171,12 @@ def main():
     parser.add_argument("--model_name_or_path", default='cambridgeltl/SapBERT-from-PubMedBERT-fulltext')
     parser.add_argument("--dictionary_path", default='../normalization/resources/dictionary/best_dict_Disease_20210630_tmp.txt')
     parser.add_argument("--cache_dir", default='../normalization/biosyn_cache')
+    parser.add_argument('--no_cuda', action="store_true", help="avoid using CUDA when available")
 
     args = parser.parse_args()
 
     biosyn = NeuralNormalizer(
-        model_name_or_path=args.model_name_or_path
+        model_name_or_path=args.model_name_or_path,
     )
     print("model load")
     if args.mode == 'indexing':

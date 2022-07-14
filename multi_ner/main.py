@@ -506,7 +506,7 @@ class MTNER:
             num_labels=self.num_labels,
             config=self.config,
         )
-        self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        self.device = torch.device("cuda" if torch.cuda.is_available() and not self.params.no_cuda else "cpu")
         self.model = self.model.to(self.device)
         self.entity_types = ['disease', 'drug', 'gene', 'species', 'cell_line', 'DNA', 'RNA', 'cell_type']
         self.estimator_dict = {}
@@ -807,6 +807,7 @@ def main():
                             default=128)
     argparser.add_argument('--seed', type=int, help='random seed for initialization',
                             default=1)
+    argparser.add_argument('--no_cuda', action="store_true", help="Avoid using CUDA when available")
     args = argparser.parse_args()
 
     mtner = MTNER(args)

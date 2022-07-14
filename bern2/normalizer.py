@@ -14,7 +14,7 @@ time_format = '[%d/%b/%Y %H:%M:%S.%f]'
 
 
 class Normalizer:
-    def __init__(self, use_neural_normalizer, gene_port=18888, disease_port=18892):
+    def __init__(self, use_neural_normalizer, gene_port=18888, disease_port=18892, no_cuda=False):
         # Normalizer paths
         self.BASE_DIR = 'resources/normalization/'
         self.NORM_INPUT_DIR = {
@@ -78,18 +78,21 @@ class Normalizer:
             self.neural_disease_normalizer = NeuralNormalizer(
                 model_name_or_path=self.NEURAL_NORM_MODEL_PATH['disease'],
                 cache_path=self.NEURAL_NORM_CACHE_PATH['disease'],
+                no_cuda=no_cuda,
             )
             print(f"neural_disease_normalizer is loaded.. model={self.NEURAL_NORM_MODEL_PATH['disease']} , dictionary={self.NEURAL_NORM_CACHE_PATH['disease']}")
 
             self.neural_chemical_normalizer = NeuralNormalizer(
                 model_name_or_path=self.NEURAL_NORM_MODEL_PATH['drug'],
                 cache_path=self.NEURAL_NORM_CACHE_PATH['drug'],
+                no_cuda=no_cuda,
             )
             print(f"neural_chemical_normalizer is loaded.. model={self.NEURAL_NORM_MODEL_PATH['drug']} , dictionary={self.NEURAL_NORM_CACHE_PATH['drug']}")
 
             self.neural_gene_normalizer = NeuralNormalizer(
                 model_name_or_path=self.NEURAL_NORM_MODEL_PATH['gene'],
                 cache_path=self.NEURAL_NORM_CACHE_PATH['gene'],
+                no_cuda=no_cuda,
             )
             print(f"neural_gene_normalizer is loaded.. model={self.NEURAL_NORM_MODEL_PATH['gene']} , dictionary={self.NEURAL_NORM_CACHE_PATH['gene']}")
 
