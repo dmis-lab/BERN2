@@ -9,6 +9,7 @@ from datetime import datetime
 
 import bioregistry
 import numpy as np
+import pandas as pd
 
 from bern2.convert import get_pub_annotation
 # from bern2.normalizer import Normalizer
@@ -244,7 +245,7 @@ class LocalBERN2():
         #       f'[{base_name}] Neural Normalization {n_norm_elapse_time} sec')
 
         # Convert to PubAnnotation JSON
-        tagged_docs[0] = get_pub_annotation(tagged_docs[0], is_raw_text=True)
+        tagged_docs[0] = get_pub_annotation(tagged_docs[0])
 
         # norm_elapse_time = r_norm_elapse_time + n_norm_elapse_time
         # print(datetime.now().strftime(self.time_format),
@@ -394,5 +395,19 @@ if __name__ == '__main__':
         keep_files=args.keep_files
     )
 
-    result = bern2.annotate_text("I don't have Diabetes Melitus Type 2, which is a disease.")
-    print(result)
+    tagging_file_path = "summary_both_2703_after_fixing.csv"
+
+    gt_df = pd.read_csv(tagging_file_path)
+    text = []
+    for id in gt_df.doc_id.unique():
+        doc = gt_df.query(f"doc_id == '{id}'")
+        text_series = doc.fillna('').apply(lambda row: row.text + (' ' * row.ws), axis=1)
+        cur_text = ''.join(text_series).replace('\ub200', '')
+        text.append(cur_text)
+
+    results = []
+    for cur_text in text:
+        result = bern2.annotate_text(cur_text)
+        results.append(result)
+    res_df = pd.DataFrame(results)
+    print(results)
