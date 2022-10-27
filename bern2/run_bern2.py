@@ -347,7 +347,7 @@ class LocalBERN2():
         # hotfix
         base_name = base_name.replace("\x00A", "")
 
-        mtner_recognize(mt_ner_model, pubtator_file, base_name, args)
+        mtner_recognize(mt_ner_model, pubtator_file, base_name, self.mtner_home)
 
         with open(output_mtner, 'r', encoding='utf-8') as f:
             tagged_docs = [json.load(f)]

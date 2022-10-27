@@ -20,10 +20,10 @@ def count_entities(data):
     return num_entities
 
 
-def mtner_recognize(model, dict_path, base_name, args):
-    input_mt_ner = os.path.join(args.mtner_home, 'input',
+def mtner_recognize(model, dict_path, base_name, mtner_home):
+    input_mt_ner = os.path.join(mtner_home, 'input',
                                 f'{dict_path}.PubTator')
-    output_mt_ner = os.path.join(args.mtner_home, 'output',
+    output_mt_ner = os.path.join(mtner_home, 'output',
                                  f'{dict_path}.json')
 
     dict_list = pubtator2dict_list(input_mt_ner)
@@ -49,6 +49,7 @@ def mtner_recognize(model, dict_path, base_name, args):
     with open(output_mt_ner, 'w', encoding='utf-8') as f:
         json.dump(res[0], f)
 
+
 def run_server(model, args):
     host = args.mtner_host
     port = args.mtner_port
@@ -60,7 +61,7 @@ def run_server(model, args):
             dict_path = conn.recv(512).decode('utf-8')
             base_name = dict_path.split('.')[0]
             # hotfix
-            base_name = base_name.replace("\x00A","")
+            base_name = base_name.replace("\x00A", "")
 
             mtner_recognize(model, dict_path, base_name, args)
 
