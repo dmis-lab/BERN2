@@ -390,9 +390,13 @@ def run_bern2_on_batch(df: pd.DataFrame, text_col: str = 'content'):
     res_df = pd.DataFrame(results, index=df.index)
     res_df = pd.merge(df, res_df, left_index=True, right_index=True, how='left')
     return res_df
-def run_bern2_annotation(text: str, max_word_len: int, mtner_home: str, use_neural_normalizer: bool,
-                         keep_files: bool) -> list:
-    pass
+
+
+def run_bern2_annotation(text: str) -> list:
+    if initialize_bern2_annotator.annotator is None:
+        raise Exception('Bern2 annotator is not initialized!')
+    return initialize_bern2_annotator.annotator.annotate_text(text)
+
 
 def initialize_bern2_annotator(max_word_len: int = 50,
                                mtner_home: str = os.path.join(os.path.expanduser('~'), 'bern', 'mtnerHome'),
