@@ -16,6 +16,17 @@ from bern2.convert import get_pub_annotation
 from multi_ner.main import MTNER
 from multi_ner.ner_server import mtner_recognize
 
+argparser = argparse.ArgumentParser()
+argparser.add_argument('--max_word_len', type=int, help='word max chars', default=50)
+argparser.add_argument('--seed', type=int, help='seed value', default=2019)
+argparser.add_argument('--mtner_home', help='biomedical language model home',
+                       default=os.path.join(os.path.expanduser('~'), 'bern', 'mtnerHome'))
+argparser.add_argument('--time_format', help='time format', default='[%d/%b/%Y %H:%M:%S.%f]')
+argparser.add_argument("--use_neural_normalizer", action="store_true")
+argparser.add_argument("--keep_files", action="store_true")
+
+args = argparser.parse_args()
+
 
 class LocalBERN2():
     def __init__(self,
@@ -128,12 +139,12 @@ class LocalBERN2():
         if '\r\n' in text:
             print(datetime.now().strftime(self.time_format),
                   f'[{base_name}] Found a CRLF -> replace it w/ a space')
-            text = text.replace('\r\n', ' ')
+            text = text.replace('\r\n', '\u200c')
 
         if '\n' in text:
             print(datetime.now().strftime(self.time_format),
                   f'[{base_name}] Found a line break -> replace it w/ a space')
-            text = text.replace('\n', ' ')
+            text = text.replace('\n', '\u200c')
 
         if '\t' in text:
             print(datetime.now().strftime(self.time_format),
@@ -156,7 +167,7 @@ class LocalBERN2():
             text = text.replace('\x0c', ' ')
 
         # remove non-ascii
-        text = text.encode("ascii", "ignore").decode()
+        # text = text.encode("ascii", "ignore").decode()
 
         found_too_long_words = 0
         tokens = text.split(' ')
@@ -370,33 +381,35 @@ def delete_files(dirname):
     print(dirname, n_deleted)
 
 
-if __name__ == '__main__':
-    argparser = argparse.ArgumentParser()
-    argparser.add_argument('--max_word_len', type=int, help='word max chars',
-                           default=50)
-    argparser.add_argument('--seed', type=int, help='seed value', default=2019)
-    argparser.add_argument('--mtner_home',
-                           help='biomedical language model home',
-                           default=os.path.join(os.path.expanduser('~'),
-                                                'bern', 'mtnerHome'))
-    argparser.add_argument('--time_format',
-                           help='time format', default='[%d/%b/%Y %H:%M:%S.%f]')
-    argparser.add_argument("--use_neural_normalizer", action="store_true")
-    argparser.add_argument("--keep_files", action="store_true")
+def run_bern2_on_batch(df: pd.DataFrame, text_col: str = 'content'):
+    bern2 = get_initialized_bern()
+    results = []
+    for cur_text in df[text_col]:
+        temp = bern2.annotate_text(cur_text)
+        results.append(temp)
+    res_df = pd.DataFrame(results, index=df.index)
+    res_df = pd.merge(df, res_df, left_index=True, right_index=True, how='left')
+    return res_df
 
-    args = argparser.parse_args()
 
+def get_initialized_bern():
     bern2 = LocalBERN2(
         max_word_len=args.max_word_len,
         seed=args.seed,
         mtner_home=args.mtner_home,
         time_format=args.time_format,
         use_neural_normalizer=args.use_neural_normalizer,
-        keep_files=args.keep_files
-    )
+        keep_files=args.keep_files)
 
-    tagging_file_path = "summary_both_2703_after_fixing.csv"
+    return bern2
 
+
+if __name__ == '__main__':
+
+    tagging_file_path = "/Volumes/GoogleDrive/Shared drives/Navina/Data Science/Diagnoses Entity Recognition/" \
+                        "tagging_results/summary_both_2703_after_fixing.csv"
+
+    bern2 = get_initialized_bern()
     gt_df = pd.read_csv(tagging_file_path)
     text = []
     for id in gt_df.doc_id.unique():
