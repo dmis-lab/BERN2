@@ -11,7 +11,7 @@ with open('requirements.txt', 'r') as req:
 
 setuptools.setup(
     name='BERN2',
-    version='0.1.1',
+    version='0.1.2',
     scripts=[],
     author="Navina ai",
     author_email="tech@navina.ai",
