@@ -390,6 +390,24 @@ def run_bern2_on_batch(df: pd.DataFrame, text_col: str = 'content'):
     res_df = pd.DataFrame(results, index=df.index)
     res_df = pd.merge(df, res_df, left_index=True, right_index=True, how='left')
     return res_df
+def run_bern2_annotation(text: str, max_word_len: int, mtner_home: str, use_neural_normalizer: bool,
+                         keep_files: bool) -> list:
+    pass
+
+
+if __name__ == '__main__':
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument('--max_word_len', type=int, help='word max chars',
+                           default=50)
+    argparser.add_argument('--seed', type=int, help='seed value', default=2019)
+    argparser.add_argument('--mtner_home',
+                           help='biomedical language model home',
+                           default=os.path.join(os.path.expanduser('~'),
+                                                'bern', 'mtnerHome'))
+    argparser.add_argument('--time_format',
+                           help='time format', default='[%d/%b/%Y %H:%M:%S.%f]')
+    argparser.add_argument("--use_neural_normalizer", action="store_true")
+    argparser.add_argument("--keep_files", action="store_true")
 
 
 def get_initialized_bern():
