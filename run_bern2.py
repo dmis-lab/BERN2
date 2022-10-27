@@ -394,20 +394,19 @@ def run_bern2_annotation(text: str, max_word_len: int, mtner_home: str, use_neur
                          keep_files: bool) -> list:
     pass
 
+def initialize_bern2_annotator(max_word_len: int = 50,
+                               mtner_home: str = os.path.join(os.path.expanduser('~'), 'bern', 'mtnerHome'),
+                               use_neural_normalizer: bool = False, keep_files: bool = False):
+    if initialize_bern2_annotator.annotator is None:
+        initialize_bern2_annotator.annotator = LocalBERN2(max_word_len=max_word_len,
+                                                          seed=args.seed,
+                                                          mtner_home=mtner_home,
+                                                          time_format=args.time_format,
+                                                          use_neural_normalizer=use_neural_normalizer,
+                                                          keep_files=keep_files)
 
-if __name__ == '__main__':
-    argparser = argparse.ArgumentParser()
-    argparser.add_argument('--max_word_len', type=int, help='word max chars',
-                           default=50)
-    argparser.add_argument('--seed', type=int, help='seed value', default=2019)
-    argparser.add_argument('--mtner_home',
-                           help='biomedical language model home',
-                           default=os.path.join(os.path.expanduser('~'),
-                                                'bern', 'mtnerHome'))
-    argparser.add_argument('--time_format',
-                           help='time format', default='[%d/%b/%Y %H:%M:%S.%f]')
-    argparser.add_argument("--use_neural_normalizer", action="store_true")
-    argparser.add_argument("--keep_files", action="store_true")
+
+initialize_bern2_annotator.annotator = None
 
 
 def get_initialized_bern():
