@@ -49,9 +49,9 @@ class LocalBERN2():
         # delete prev. version outputs
         if not keep_files:
             delete_files('./output')
-            delete_files(os.path.join('./multi_ner', 'input'))
-            delete_files(os.path.join('./multi_ner', 'tmp'))
-            delete_files(os.path.join('./multi_ner', 'output'))
+            delete_files(os.path.join('../multi_ner', 'input'))
+            delete_files(os.path.join('../multi_ner', 'tmp'))
+            delete_files(os.path.join('../multi_ner', 'output'))
 
         # FOR NER
         self.mtner_home = mtner_home
@@ -429,10 +429,10 @@ def get_initialized_bern():
 
 if __name__ == '__main__':
 
-    tagging_file_path = "/Volumes/GoogleDrive/Shared drives/Navina/Data Science/Diagnoses Entity Recognition/" \
-                        "tagging_results/summary_both_2703_after_fixing.csv"
+    tagging_file_path = "../summary_both_2703_after_fixing.csv"
 
-    bern2 = get_initialized_bern()
+
+    # bern2 = get_initialized_bern()
     gt_df = pd.read_csv(tagging_file_path)
     text = []
     for id in gt_df.doc_id.unique():
@@ -442,8 +442,10 @@ if __name__ == '__main__':
         text.append(cur_text)
 
     results = []
+    initialize_bern2_annotator(mtner_home='/home/ubuntu/Desktop/zach_pycharm/BERN2_new/mtnerHome')
     for cur_text in text:
-        result = bern2.annotate_text(cur_text)
+        result = run_bern2_annotation(cur_text)
+        # result = bern2.annotate_text(cur_text)
         results.append(result)
     res_df = pd.DataFrame(results)
     print(results)
