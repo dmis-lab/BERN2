@@ -19,7 +19,7 @@ setuptools.setup(
     long_description="BERN2",
     long_description_content_type="text/markdown",
     install_requires=packages,
-    packages=["bern2"],
+    packages=["temp_name_021122"],
     include_package_data=True,
     classifiers=[
         "Programming Language :: Python :: 3",

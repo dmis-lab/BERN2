@@ -28,8 +28,8 @@ You first need to install BERN2 and its dependencies.
 
 ```bash
 # Install torch with conda (please check your CUDA version)
-conda create -n bern2 python=3.7
-conda activate bern2
+conda create -n temp_name_021122 python=3.7
+conda activate temp_name_021122
 conda install pytorch==1.9.0 cudatoolkit=10.2 -c pytorch
 conda install faiss-gpu libfaiss-avx2 -c conda-forge
 

@@ -11,8 +11,8 @@ import bioregistry
 import numpy as np
 import pandas as pd
 
-from bern2.convert import get_pub_annotation
-# from bern2.normalizer import Normalizer
+from temp_name_021122.bern2.convert import get_pub_annotation
+# from temp_name_021122.normalizer import Normalizer
 from multi_ner.main import MTNER
 from multi_ner.ner_server import mtner_recognize
 
@@ -333,7 +333,7 @@ class LocalBERN2():
         start_time = time.time()
         argparser = argparse.ArgumentParser()
         argparser.add_argument('--seed', type=int, help='random seed for initialization', default=1)
-        argparser.add_argument('--model_name_or_path', default='dmis-lab/bern2-ner')
+        argparser.add_argument('--model_name_or_path', default='dmis-lab/temp_name_021122-ner')
         argparser.add_argument('--max_seq_length', type=int,
                                help='The maximum total input sequence length after tokenization. Sequences longer than this will be truncated, sequences shorter will be padded.',
                                default=128)
