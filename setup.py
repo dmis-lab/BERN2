@@ -19,7 +19,7 @@ setuptools.setup(
     long_description="BERN2",
     long_description_content_type="text/markdown",
     install_requires=packages,
-    packages=["bern2_annotator"],
+    packages=["bern2"],
     include_package_data=True,
     classifiers=[
         "Programming Language :: Python :: 3",

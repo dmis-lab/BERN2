@@ -9,7 +9,7 @@ except ImportError:
     from result_parser import ResultParser
 
 # Import Engine
-import bern2
+from bern2 import bern2
 
 import time
     
