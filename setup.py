@@ -19,7 +19,8 @@ setuptools.setup(
     long_description="BERN2",
     long_description_content_type="text/markdown",
     install_requires=packages,
-    packages=["temp_name_021122", "temp_name_021122/bern2"],
+    packages=["temp_name_021122", "temp_name_021122/bern2", "temp_name_021122/multi_ner",
+              "temp_name_021122/normalizers"],
     include_package_data=True,
     classifiers=[
         "Programming Language :: Python :: 3",

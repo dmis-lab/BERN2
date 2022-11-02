@@ -49,9 +49,9 @@ class LocalBERN2():
         # delete prev. version outputs
         if not keep_files:
             delete_files('./output')
-            delete_files(os.path.join('../multi_ner', 'input'))
-            delete_files(os.path.join('../multi_ner', 'tmp'))
-            delete_files(os.path.join('../multi_ner', 'output'))
+            delete_files(os.path.join('multi_ner', 'input'))
+            delete_files(os.path.join('multi_ner', 'tmp'))
+            delete_files(os.path.join('multi_ner', 'output'))
 
         # FOR NER
         self.mtner_home = mtner_home

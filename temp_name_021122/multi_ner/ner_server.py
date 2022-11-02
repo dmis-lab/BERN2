@@ -4,9 +4,8 @@ import socket
 import struct
 import argparse
 
-from datetime import datetime
-from multi_ner.main import MTNER
-from multi_ner.ops import filter_entities, pubtator2dict_list
+from temp_name_021122.multi_ner.main import MTNER
+from temp_name_021122.multi_ner.ops import pubtator2dict_list
 
 
 def count_entities(data):
