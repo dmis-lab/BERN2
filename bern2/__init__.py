@@ -1,1 +1,1 @@
-# from bern2.bern2 import BERN2
+from bern2.bern2 import BERN2
