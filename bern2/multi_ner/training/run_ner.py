@@ -115,7 +115,7 @@ def main():
     else:
         model_args, data_args, training_args = parser.parse_args_into_dataclasses()
 
-    wandb.init(project="temp_name_021122", name=data_args.wandb_name) # need check
+    wandb.init(project="bern2", name=data_args.wandb_name) # need check
 
     if (
         os.path.exists(training_args.output_dir)

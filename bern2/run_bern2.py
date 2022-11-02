@@ -11,10 +11,10 @@ import bioregistry
 import numpy as np
 import pandas as pd
 
-from temp_name_021122.bern2.convert import get_pub_annotation
-# from temp_name_021122.normalizer import Normalizer
-from temp_name_021122.multi_ner.main import MTNER
-from temp_name_021122.multi_ner.ner_server import mtner_recognize
+from bern2.bern2.convert import get_pub_annotation
+# from bern2.normalizer import Normalizer
+from bern2.multi_ner.main import MTNER
+from bern2.multi_ner.ner_server import mtner_recognize
 
 argparser = argparse.ArgumentParser()
 argparser.add_argument('--max_word_len', type=int, help='word max chars', default=50)

@@ -4,11 +4,11 @@ import time
 import socket
 import threading
 
-from temp_name_021122.normalizers.chemical_normalizer import ChemicalNormalizer
-from temp_name_021122.normalizers.species_normalizer import SpeciesNormalizer
-from temp_name_021122.normalizers.cellline_normalizer import CellLineNormalizer
-from temp_name_021122.normalizers.celltype_normalizer import CellTypeNormalizer
-from temp_name_021122.normalizers.neural_normalizer import NeuralNormalizer
+from bern2.normalizers.chemical_normalizer import ChemicalNormalizer
+from bern2.normalizers.species_normalizer import SpeciesNormalizer
+from bern2.normalizers.cellline_normalizer import CellLineNormalizer
+from bern2.normalizers.celltype_normalizer import CellTypeNormalizer
+from bern2.normalizers.neural_normalizer import NeuralNormalizer
 
 time_format = '[%d/%b/%Y %H:%M:%S.%f]'
 

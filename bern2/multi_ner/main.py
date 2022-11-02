@@ -38,7 +38,7 @@ from transformers import (
     PreTrainedTokenizer,
 )
 
-from temp_name_021122.multi_ner.ops import (
+from bern2.multi_ner.ops import (
     json_to_sent,
     input_form,
     get_prob,
@@ -46,7 +46,7 @@ from temp_name_021122.multi_ner.ops import (
     preprocess,
     Profile,
 )
-from temp_name_021122.multi_ner.modeling import RoBERTaMultiNER2
+from bern2.multi_ner.modeling import RoBERTaMultiNER2
 
 logger = logging.getLogger(__name__)
 

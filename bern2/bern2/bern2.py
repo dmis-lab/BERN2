@@ -677,7 +677,7 @@ if __name__ == '__main__':
         keep_files=args.keep_files
     )
 
-    # result = temp_name_021122.annotate_text("cancer is a disease")
+    # result = bern2.annotate_text("cancer is a disease")
     # print(result)
     result = bern2.annotate_pmid("30429607")
     print(result)
