@@ -13,8 +13,8 @@ import pandas as pd
 
 from temp_name_021122.bern2.convert import get_pub_annotation
 # from temp_name_021122.normalizer import Normalizer
-from multi_ner.main import MTNER
-from multi_ner.ner_server import mtner_recognize
+from temp_name_021122.multi_ner.main import MTNER
+from temp_name_021122.multi_ner.ner_server import mtner_recognize
 
 argparser = argparse.ArgumentParser()
 argparser.add_argument('--max_word_len', type=int, help='word max chars', default=50)
