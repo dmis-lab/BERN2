@@ -11,11 +11,14 @@ tar -zxvf NERdata.tar.gz
 ```
 
 
-### 2. Traininig BERN2 NER model
+### 2. Training BERN2 NER model
 ```bash
+wget https://dl.fbaipublicfiles.com/biolm/RoBERTa-large-PM-M3-Voc-hf.tar.gz
+tar -zxvf RoBERTa-large-PM-M3-Voc-hf.tar.gz
+
 export DATA_LIST=NCBI-disease+BC4CHEMD+BC2GM+linnaeus+JNLPBA-dna+JNLPBA-rna+JNLPBA-ct+JNLPBA-cl
 export EVAL_DATA_LIST=NCBI-disease+BC4CHEMD+BC2GM+linnaeus+JNLPBA-dna+JNLPBA-rna+JNLPBA-ct+JNLPBA-cl
-export OUTPUT_DIR=./output
+export OUTPUT_DIR=./finetuned_model
 
 export ENTITY=NCBI-disease # BC4CHEMD, BC2GM etc.
 export NUM_EPOCHS=50
@@ -27,7 +30,7 @@ export LR=3e-5
 export WARMUP=0
 
 python run_ner.py
-    --model_name_or_path /path/to/your/pre-trained-LM
+    --model_name_or_path RoBERTa-large-PM-M3-Voc-hf
     --data_dir NERdata/$ENTITY/
     --labels NERdata/$ENTITY/labels.txt
     --output_dir $OUTPUT_DIR
@@ -51,11 +54,14 @@ python run_ner.py
 
 ### 3. Evaluate on trained model
 ```bash
-export OUTPUT_DIR=./output
+export MODEL_NAME=./finetuned_model # or 'dmis-lab/bern2-ner'
+export OUTPUT_DIR=./output # Save output file for logging evaluation results
 export ENTITY=NCBI-disease
+export BATCH_SIZE=32
+export SEED=1
 
 python run_eval.py 
-    --model_name_or_path dmis-lab/bern2-ner
+    --model_name_or_path $MODEL_NAME
     --data_dir NERdata/$ENTITY/
     --labels NERdata/$ENTITY/labels.txt
     --output_dir $OUTPUT_DIR
