@@ -11,7 +11,7 @@ tar -zxvf NERdata.tar.gz
 ```
 
 
-### 2. Training BERN2 NER model
+### 2. Fine-tuning an NER model
 ```bash
 wget https://dl.fbaipublicfiles.com/biolm/RoBERTa-large-PM-M3-Voc-hf.tar.gz
 tar -zxvf RoBERTa-large-PM-M3-Voc-hf.tar.gz
@@ -52,10 +52,10 @@ python run_ner.py
     --overwrite_output_dir
 ```
 
-### 3. Evaluate on trained model
+### 3. Evaluating the fine-tuned NER model (or BERN2 NER model)
 ```bash
 export MODEL_NAME=./finetuned_model # or 'dmis-lab/bern2-ner'
-export OUTPUT_DIR=./output # Save output file for logging evaluation results
+export OUTPUT_DIR=./output # Save an output file for evaluation results
 export ENTITY=NCBI-disease
 export BATCH_SIZE=32
 export SEED=1
