@@ -98,7 +98,7 @@ class DataTrainingArguments:
     data_list: str = field(
         default='', metadata={'help': 'List of entity name string'}
     )
-    eval_data_type: str = field(
+    eval_data_list: str = field(
         default='', metadata={'help': 'Entity name or Entity type for evaluation'}
     )
 
@@ -216,7 +216,7 @@ def main():
             overwrite_cache=data_args.overwrite_cache,
             mode=Split.train,
             data_list=data_args.data_list,
-            eval_data_type=data_args.eval_data_type,
+            eval_data_list=data_args.eval_data_list,
         )
         if training_args.do_train
         else None
@@ -230,7 +230,7 @@ def main():
             max_seq_length=data_args.max_seq_length,
             overwrite_cache=data_args.overwrite_cache,
             mode=Split.dev,
-            eval_data_type=data_args.eval_data_type,
+            eval_data_list=data_args.eval_data_list,
         )
         if training_args.do_eval
         else None
@@ -309,7 +309,7 @@ def main():
             max_seq_length=data_args.max_seq_length,
             overwrite_cache=data_args.overwrite_cache,
             mode=Split.test,
-            eval_data_type=data_args.eval_data_type,
+            eval_data_list=data_args.eval_data_list,
         )
 
         predictions, label_ids, metrics = trainer.predict(test_dataset)
@@ -324,33 +324,6 @@ def main():
                     logger.info("  %s = %s", key, value)
                     writer.write("%s = %s\n" % (key, value))
                     
-        wandb.log({"test_precision": metrics['eval_precision'],
-                    "test_recall": metrics['eval_recall'],
-                    "test_f1": metrics['eval_f1']})
-
-        output_test_predictions_file = os.path.join(training_args.output_dir, "test_predictions.txt")
-        if trainer.is_world_master():
-            with open(output_test_predictions_file, "w") as writer:
-                with open(os.path.join(data_args.data_dir+data_args.eval_data_type, "test.txt"), "r") as f:
-                    example_id = 0
-                    for line in f:
-                        if line.startswith("-DOCSTART-") or line == "" or line == "\n":
-                            writer.write(line)
-                            if not preds_list[example_id]:
-                                example_id += 1
-                        elif preds_list[example_id]:
-                            entity_label = preds_list[example_id].pop(0)
-                            if entity_name == 'WNUT2017':
-                                output_line = line.split()[0] + "\t" + line.split()[1] + "\t" + entity_label + "\n"
-                            else:
-                                output_line = line.split()[0] + " " + entity_label + "\n"
-                            writer.write(output_line)
-                        else:
-                            logger.warning(
-                                "Maximum sequence length exceeded: No prediction for '%s'.", line.split()[0]
-                            )
-            
-
     return results
 
 

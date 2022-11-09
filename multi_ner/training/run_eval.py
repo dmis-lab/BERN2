@@ -93,14 +93,14 @@ class DataTrainingArguments:
     overwrite_cache: bool = field(
         default=False, metadata={"help": "Overwrite the cached training and evaluation sets"}
     )
-    wandb_name: str = field(
-        default=None, metadata={'help': "Name of Wandb runs"},
+    data_list: str = field(
+        default='', metadata={'help': 'List of entity name string'}
     )
-    is_pmi: bool = field(
-        default=False, metadata={'help': "To use Pointwise Mututal Information in debiasing"}
+    eval_data_list: str = field(
+        default='', metadata={'help': 'Entity name or Entity type for evaluation'}
     )
-    eval_data_name: str = field(
-        default="mem", metadata={'help': "Evaluation oo Memorization, Synonym, Concept, Seen, and Unseen"}
+    eval_data_type: str = field(
+        default='', metadata={'help': 'Entity name or Entity type for evaluation'}
     )
 
 
@@ -116,8 +116,6 @@ def main():
         model_args, data_args, training_args = parser.parse_json_file(json_file=os.path.abspath(sys.argv[1]))
     else:
         model_args, data_args, training_args = parser.parse_args_into_dataclasses()
-
-    wandb.init(project="bio-saliency", name=data_args.wandb_name)
 
     if (
         os.path.exists(training_args.output_dir)
@@ -175,7 +173,7 @@ def main():
         cache_dir=model_args.cache_dir,
         use_fast=model_args.use_fast,
     )
-    model = NER.from_pretrained(
+    model = RoBERTaMultiNER2.from_pretrained(
             model_args.model_name_or_path,
             from_tf=bool(".ckpt" in model_args.model_name_or_path),
             config=config,
@@ -193,34 +191,6 @@ def main():
     tokenizer.save_pretrained(training_args.output_dir)
     import pdb; pdb.set_trace()
     '''
-
-    if data_args.eval_data_name == 'mem':
-        Split = Split_mem
-    elif data_args.eval_data_name == 'syn':
-        Split = Split_syn
-    elif data_args.eval_data_name == 'con':
-        Split = Split_con
-    elif data_args.eval_data_name == 'seen':
-        Split = Split_seen
-    elif data_args.eval_data_name == 'unseen':
-        Split = Split_unseen
-    elif data_args.eval_data_name == 'len1':
-        Split = Split_len1
-    elif data_args.eval_data_name == 'len2':
-        Split = Split_len2
-    elif data_args.eval_data_name == 'len3':
-        Split = Split_len3
-    elif data_args.eval_data_name == 'len4':
-        Split = Split_len4
-    elif data_args.eval_data_name == 'len5':
-        Split = Split_len5
-    elif data_args.eval_data_name == 'len6':
-        Split = Split_len6
-    elif data_args.eval_data_name == 'len7':
-        Split = Split_len7
-    elif data_args.eval_data_name == 'len8':
-        Split = Split_len8
-
         
     # Get datasets
     train_dataset = (
@@ -232,7 +202,7 @@ def main():
             max_seq_length=data_args.max_seq_length,
             overwrite_cache=data_args.overwrite_cache,
             mode=Split.train,
-            is_pmi=data_args.is_pmi,
+            eval_data_list=data_args.eval_data_list,
         )
         if training_args.do_train
         else None
@@ -246,8 +216,7 @@ def main():
             max_seq_length=data_args.max_seq_length,
             overwrite_cache=data_args.overwrite_cache,
             mode=Split.dev,
-            is_pmi=data_args.is_pmi,
-            eval_data_name=data_args.eval_data_name,
+            eval_data_list=data_args.eval_data_list,
         )
         if training_args.do_eval
         else None
@@ -315,7 +284,6 @@ def main():
 
             results.update(result)
     
-    
     # Predict
     if training_args.do_predict:
         test_dataset = NerDataset(
@@ -326,8 +294,7 @@ def main():
             max_seq_length=data_args.max_seq_length,
             overwrite_cache=data_args.overwrite_cache,
             mode=Split.test,
-            is_pmi=data_args.is_pmi,
-            eval_data_name=data_args.eval_data_name,
+            eval_data_list=data_args.eval_data_list,
         )
 
         predictions, label_ids, metrics = trainer.predict(test_dataset)
@@ -340,37 +307,7 @@ def main():
                 logger.info("***** Test results *****")
                 for key, value in metrics.items():
                     logger.info("  %s = %s", key, value)
-                    writer.write("%s = %s\n" % (key, value))
-        
-        if data_args.eval_data_name in ['len1', 'len2', 'len3', 'len4', 'len5', 'len6', 'len7', 'len8']:
-            wandb.log({"test_precision": metrics['eval_precision'],
-                        "test_recall": metrics['eval_recall'],
-                        "test_f1": metrics['eval_f1']})
-        else:
-            wandb.log({"test_recall": metrics['eval_recall']})
-        
-        output_test_predictions_file = os.path.join(training_args.output_dir, "test_predictions.txt")
-        if trainer.is_world_master():
-            with open(output_test_predictions_file, "w") as writer:
-                with open(os.path.join(data_args.data_dir, "test_%s.txt" % data_args.eval_data_name), "r") as f:
-                    example_id = 0
-                    for line in f:
-                        if line.startswith("-DOCSTART-") or line == "" or line == "\n":
-                            writer.write(line)
-                            if not preds_list[example_id]:
-                                example_id += 1
-                        elif preds_list[example_id]:
-                            entity_label = preds_list[example_id].pop(0)
-                            if entity_name == 'WNUT2017':
-                                output_line = line.split()[0] + "\t" + line.split()[1] + "\t" + entity_label + "\n"
-                            else:
-                                output_line = line.split()[0] + " " + entity_label + "\n"
-                            writer.write(output_line)
-                        else:
-                            logger.warning(
-                                "Maximum sequence length exceeded: No prediction for '%s'.", line.split()[0]
-                            )
-            
+                    writer.write("%s = %s\n" % (key, value))           
 
     return results
 

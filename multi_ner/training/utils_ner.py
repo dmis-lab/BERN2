@@ -97,9 +97,8 @@ if is_torch_available():
             max_seq_length: Optional[int] = None,
             overwrite_cache=False,
             mode: Split = Split.train,
-            eval_data_name='',
             data_list='',
-            eval_data_type='',
+            eval_data_list='',
         ):
             # Load data features from cache or dataset file
             cached_features_file = os.path.join(
@@ -116,7 +115,7 @@ if is_torch_available():
                     self.features = torch.load(cached_features_file)
                 else:
                     logger.info(f"Creating features from dataset file at {data_dir}")
-                    examples = read_examples_from_file(data_dir, mode, eval_data_name=eval_data_name, data_list=data_list, eval_data_type=eval_data_type)
+                    examples = read_examples_from_file(data_dir, mode, data_list=data_list, eval_data_list=eval_data_list)
                     # TODO clean up all this to leverage built-in features of tokenizers
                     self.features = convert_examples_to_features(
                         examples,
@@ -145,7 +144,7 @@ if is_torch_available():
             return self.features[i]
 
 
-def read_examples_from_file(data_dir, mode: Union[Split, str], eval_data_name='', data_list='', eval_data_type='') -> List[InputExample]:
+def read_examples_from_file(data_dir, mode: Union[Split, str], data_list='', eval_data_list='') -> List[InputExample]:
     split = Split
 
     if isinstance(mode, split):
@@ -154,51 +153,109 @@ def read_examples_from_file(data_dir, mode: Union[Split, str], eval_data_name=''
     guid_index = 1
     examples = []
 
-    def gen_dataset(file_path, guid_index, examples, merge_idx=0):
-        with open(file_path, encoding="utf-8") as f:
-            words = []
-            labels = []
-            entity_labels = []
-            for line in f:
-                if line.startswith("-DOCSTART-") or line == "" or line == "\n":
-                    if words:
-                        examples.append(InputExample(guid=f"{mode}-{guid_index}", words=words, labels=labels, entity_labels=entity_labels))
-                        guid_index += 1
-                        words = []
-                        labels = []
-                        entity_labels = []
-                else:
-                    splits = line.split(" ")
-                    words.append(splits[0])
-                    entity_labels.append(merge_idx)
-                    if len(splits) > 1:
-                        splits_replace = splits[-1].replace("\n", "")
-                        labels.append(splits_replace)
+    def gen_dataset(file_path, guid_index, examples, merge_idx=0, downsample=False, merge_data=""):
+        if not os.path.exists(file_path):
+            return examples, guid_index
+        
+        else:
+            with open(file_path, encoding="utf-8") as f:
+                words = []
+                labels = []
+                entity_labels = []
+                new_ex = []
+                for line_idx, line in enumerate(f):
+                    if line.startswith("-DOCSTART-") or line == "" or line == "\n":
+                        if words:
+                            new_ex.append(InputExample(guid=f"{mode}-{guid_index}", words=words, labels=labels, entity_labels=entity_labels))
+                            # examples.append(InputExample(guid=f"{mode}-{guid_index}", words=words, labels=labels, entity_labels=entity_labels))
+                            guid_index += 1
+                            words = []
+                            labels = []
+                            entity_labels = []
                     else:
-                        # Examples could have no label for mode = "test"
-                        labels.append("O")
-            if words:
-                examples.append(InputExample(guid=f"{mode}-{guid_index}", words=words, labels=labels, entity_labels=entity_labels))
+                        splits = line.split(" ")
+                        words.append(splits[0])
+                        entity_labels.append(merge_idx)
+                        if len(splits) > 1:
+                            splits_replace = splits[-1].replace("\n", "")
+                            labels.append(splits_replace)
+                        else:
+                            # Examples could have no label for mode = "test"
+                            labels.append("O")
+                    
+                if words:
+                    new_ex.append(InputExample(guid=f"{mode}-{guid_index}", words=words, labels=labels, entity_labels=entity_labels))
+                    # examples.append(InputExample(guid=f"{mode}-{guid_index}", words=words, labels=labels, entity_labels=entity_labels))
+            
+            if downsample:
+                # if merge_data in ["ncbi_disease", "chemdner", "bc2gm", "linnaeus", "jnlpba-cl", "jnlpba-dna", "jnlpba-rna", "jnlpba-ct"]:
+                if merge_data in ["NCBI-disease", "BC4CHEMD", "BC2GM", "linnaeus", "JNLPBA-cl", "JNLPBA-ct", "JNLPBA-dna", "JNLPBA-rna"]:
+                    examples.extend(new_ex)
+                else:
+                    if merge_idx == 1:
+                        # random.shuffle(new_ex)
+                        total_len = len(new_ex)
+                        new_ex = new_ex[:int(total_len * 0.25)]
+                    # elif merge_idx == 2:
+                    #     # random.shuffle(new_ex)
+                    #     total_len = len(new_ex)
+                    #     new_ex = new_ex[:int(total_len * 0.4)]
+                    elif merge_idx == 3:
+                        # random.shuffle(new_ex)
+                        total_len = len(new_ex)
+                        new_ex = new_ex[:int(total_len * 0.25)]
+                    elif merge_idx == 4:
+                        # random.shuffle(new_ex)
+                        total_len = len(new_ex)
+                        new_ex = new_ex[:int(total_len * 0.62)]
+                    # elif merge_idx == 5:
+                    #     # random.shuffle(new_ex)
+                    #     total_len = len(new_ex)
+                    #     new_ex = new_ex[:int(total_len * 0.713)]
+                    examples.extend(new_ex)
+            else:
+                examples.extend(new_ex)
 
-        return examples, guid_index
+            return examples, guid_index
+
+    def get_merge_idx(data_name):
+        if data_name in ["NCBI-disease", "BC5CDR-disease", "mirna-di", "ncbi_disease", "scai_disease", "variome-di"]:
+            merge_idx = 1
+        elif data_name in ["BC5CDR-chem",  "cdr-ch", "chemdner", "scai_chemicals", "chebi-ch", "BC4CHEMD"]:
+            merge_idx = 2
+        elif data_name in ["BC2GM", "JNLPBA-protein", "bc2gm", "mirna-gp", "cell_finder-gp", "chebi-gp", "loctext-gp", "deca", "fsu", "gpro", "jnlpba-gp", "bio_infer-gp", "variome-gp", "osiris-gp",  "iepa"]:
+            merge_idx = 3
+        elif data_name in ["s800", "linnaeus", "loctext-sp", "mirna-sp", "chebi-sp", "cell_finder-sp", "variome-sp"]:
+            merge_idx = 4
+        elif data_name in ["JNLPBA-cl", "cell_finder-cl", "jnlpba-cl", "gellus", "cll"]:
+            merge_idx = 5
+        elif data_name in ["JNLPBA-dna", "jnlpba-dna"]:
+            merge_idx = 6
+        elif data_name in ["JNLPBA-rna","jnlpba-rna"]:
+            merge_idx = 7
+        elif data_name in ["JNLPBA-ct","jnlpba-ct"]:
+            merge_idx = 8
+        else:
+            merge_idx = 0
+        return merge_idx
 
     if 'train' in mode:
         # prepare all data with batch-wise, epoch-wise, and all random
         data_list = data_list.split('+')
-        for merge_idx, merge_data in enumerate(data_list):
-            # data_list = NCBI-disease+BC4CHEMD+BC2GM+linnaeus
+        for _, merge_data in enumerate(data_list):
+            merge_idx = get_merge_idx(merge_data)
             file_path = os.path.join(data_dir+merge_data, f"{mode}.txt")
-            examples, guid_index = gen_dataset(file_path, guid_index, examples, merge_idx=merge_idx+1)
-            
+            examples, guid_index = gen_dataset(file_path, guid_index, examples, merge_idx=merge_idx, downsample=False)
+            # examples, guid_index = gen_dataset(file_path, guid_index, examples, merge_idx=merge_idx, downsample=True, merge_data=merge_data)
+        # random.shuffle(examples)
     else:
         # prepare specific data name with eval_data_type
-        merge_dict = {'NCBI-disease':1, 'BC4CHEMD':2, 'BC2GM':3, 'linnaeus':4, 'JNLPBA':5, 'JNLPBA-cl':5, 'JNLPBA-dna':6, 'JNLPBA-rna':7, 'JNLPBA-protein':8, 'JNLPBA-ct':9}
-        file_path = os.path.join(data_dir+eval_data_type, f"{mode}.txt")
+        eval_data_list = eval_data_list.split('+')
+        for _, eval_data_type in enumerate(eval_data_list):
+            merge_idx = get_merge_idx(eval_data_type)
+            file_path = os.path.join(data_dir+eval_data_type, f"{mode}.txt")
+            examples, guid_index = gen_dataset(file_path, guid_index, examples, merge_idx=merge_idx)
         
-        if eval_data_type not in merge_dict:
-            merge_dict[eval_data_type] = 0
-        examples, guid_index = gen_dataset(file_path, guid_index, examples, merge_idx=merge_dict[eval_data_type])
-
     return examples
 
 
