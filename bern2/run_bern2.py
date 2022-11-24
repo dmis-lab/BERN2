@@ -28,12 +28,12 @@ argparser.add_argument("--keep_files", action="store_true")
 args = argparser.parse_args()
 
 
-def append_text_to_pubtator(input_mtner: str, base_name: str, text: str):
+def append_text_to_pubtator(input_mtner: str, pmid: str, text: str):
     # Write input str to a .PubTator format file
     with open(input_mtner, 'a', encoding='utf-8') as f:
         # only abstract
-        f.write(f'{base_name}|t|\n')
-        f.write(f'{base_name}|a|{text}\n\n')
+        f.write(f'{pmid}|t|\n')
+        f.write(f'{pmid}|a|{text}\n\n')
 
 
 class LocalBERN2():
@@ -209,7 +209,8 @@ class LocalBERN2():
             os.mkdir(self.mtner_home + '/output')
 
         for text in list_of_texts:
-            append_text_to_pubtator(input_mtner, base_name, text)
+            pmid = self.generate_base_name(text)
+            append_text_to_pubtator(input_mtner, pmid, text)
 
         ner_start_time = time.time()
         ner_result = self.ner(pubtator_file, output_mtner, base_name)
