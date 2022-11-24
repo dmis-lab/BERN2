@@ -1,6 +1,6 @@
 import pandas as pd
 
-from bern2.run_bern2 import get_initialized_bern
+from bern2.run_bern2 import get_initialized_bern, run_bern2_annotation
 
 if __name__ == '__main__':
 
@@ -16,9 +16,11 @@ if __name__ == '__main__':
         cur_text = ''.join(text_series).replace('\ub200', '')
         text.append(cur_text)
 
-    results = []
-    for cur_text in text:
-        result = bern2.annotate_text(cur_text)
-        results.append(result)
+    results = bern2.annotate_text(text[:2])
+
+    # results = []
+    # for cur_text in text:
+    #     result = bern2.annotate_text(cur_text)
+    #     results.append(result)
     res_df = pd.DataFrame(results)
     print(results)

@@ -28,6 +28,14 @@ argparser.add_argument("--keep_files", action="store_true")
 args = argparser.parse_args()
 
 
+def append_text_to_pubtator(input_mtner: str, base_name: str, text: str):
+    # Write input str to a .PubTator format file
+    with open(input_mtner, 'a', encoding='utf-8') as f:
+        # only abstract
+        f.write(f'{base_name}|t|\n')
+        f.write(f'{base_name}|a|{text}\n\n')
+
+
 class LocalBERN2():
     def __init__(self,
                  mtner_home,
@@ -62,11 +70,12 @@ class LocalBERN2():
 
         print(datetime.now().strftime(self.time_format), 'BERN2 LOADED..')
 
-    def annotate_text(self, text):
-        text = text.strip()
-        base_name = self.generate_base_name(text)  # for the name of temporary files
-        text = self.preprocess_input(text, base_name)
-        output = self.tag_entities(text, base_name)
+    def annotate_text(self, list_of_texts: list):
+        # TODO: Make this a pd.Series instead of a list
+        list_of_texts = [text.strip() for text in list_of_texts]
+        base_name = self.generate_base_name(list_of_texts[0])  # for the name of temporary files
+        list_of_texts = [self.preprocess_input(text, base_name) for text in list_of_texts]
+        output = self.tag_entities(list_of_texts, base_name)
         output['error_code'], output['error_message'] = 0, ""
         output = self.post_process_output(output)
         return output
@@ -182,17 +191,8 @@ class LocalBERN2():
 
         return text
 
-    def tag_entities(self, text, base_name):
-        n_ascii_letters = 0
-        for l in text:
-            if l not in string.ascii_letters:
-                continue
-            n_ascii_letters += 1
-
-        if n_ascii_letters == 0:
-            text = 'No ascii letters. Please enter your text in English.'
-
-        base_name = self.generate_base_name(text)
+    def tag_entities(self, list_of_texts: list, base_name):
+        base_name = self.generate_base_name(list_of_texts[0])
         print(datetime.now().strftime(self.time_format),
               f'id: {base_name}')
 
@@ -208,11 +208,8 @@ class LocalBERN2():
         if not os.path.exists(self.mtner_home + '/output'):
             os.mkdir(self.mtner_home + '/output')
 
-        # Write input str to a .PubTator format file
-        with open(input_mtner, 'w', encoding='utf-8') as f:
-            # only abstract
-            f.write(f'{base_name}|t|\n')
-            f.write(f'{base_name}|a|{text}\n\n')
+        for text in list_of_texts:
+            append_text_to_pubtator(input_mtner, base_name, text)
 
         ner_start_time = time.time()
         ner_result = self.ner(pubtator_file, output_mtner, base_name)
@@ -392,10 +389,10 @@ def run_bern2_on_batch(df: pd.DataFrame, text_col: str = 'content'):
     return res_df
 
 
-def run_bern2_annotation(text: str) -> list:
+def run_bern2_annotation(list_of_texts: str) -> list:
     if initialize_bern2_annotator.annotator is None:
         raise Exception('BERN2 annotator is not initialized!')
-    result = initialize_bern2_annotator.annotator.annotate_text(text)
+    result = initialize_bern2_annotator.annotator.annotate_text(list_of_texts)
     annotations = result['annotations']
     return annotations
 
