@@ -348,13 +348,12 @@ class LocalBERN2():
         mtner_recognize(mt_ner_model, pubtator_file, base_name, self.mtner_home)
 
         with open(output_mtner, 'r', encoding='utf-8') as f:
-            tagged_docs = [json.load(f)]
+            tagged_docs = json.load(f)
 
         num_entities = tagged_docs[0]['num_entities']
         if tagged_docs is None:
             return None
 
-        assert len(tagged_docs) == 1
         mtner_elapse_time = time.time() - start_time
         print(datetime.now().strftime(self.time_format),
               f'[{base_name}] Multi-task NER {mtner_elapse_time} sec, #entities: {num_entities}')

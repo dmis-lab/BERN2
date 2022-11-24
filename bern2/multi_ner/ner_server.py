@@ -41,12 +41,13 @@ def mtner_recognize(model, dict_path, base_name, mtner_home):
     #         print(datetime.now().strftime(args.time_format),
     #               '[{}] Filtered {} species'
     #               .format(base_name, n_f_spcs[1]))
+    # TODO: count per document
     num_entities = count_entities(res)
 
     res[0]['num_entities'] = num_entities
     # Write output str to a .PubTator format file
     with open(output_mt_ner, 'w', encoding='utf-8') as f:
-        json.dump(res[0], f)
+        json.dump(res, f)
 
 
 def run_server(model, args):
