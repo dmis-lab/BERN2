@@ -76,16 +76,15 @@ class LocalBERN2():
         base_name = self.generate_base_name(list_of_texts[0])  # for the name of temporary files
         list_of_texts = [self.preprocess_input(text, base_name) for text in list_of_texts]
         output = self.tag_entities(list_of_texts, base_name)
-        output['error_code'], output['error_message'] = 0, ""
         output = self.post_process_output(output)
         return output
 
     def post_process_output(self, output):
         # split_cuis (e.g., "OMIM:608627,MESH:C563895" => ["OMIM:608627","MESH:C563895"])
-        output = self.split_cuis(output)
+        output = [self.split_cuis(doc) for doc in output]
 
         # standardize prefixes (e.g., EntrezGene:10533 => NCBIGene:10533)
-        output = self.standardize_prefixes(output)
+        output = [self.standardize_prefixes(doc) for doc in output]
 
         return output
 
@@ -254,26 +253,21 @@ class LocalBERN2():
         #       f'[{base_name}] Neural Normalization {n_norm_elapse_time} sec')
 
         # Convert to PubAnnotation JSON
-        tagged_docs[0] = get_pub_annotation(tagged_docs[0])
+        tagged_docs = [get_pub_annotation(tagged_doc) for tagged_doc in tagged_docs]
 
         # norm_elapse_time = r_norm_elapse_time + n_norm_elapse_time
         # print(datetime.now().strftime(self.time_format),
         #       f'[{base_name}] ALL NORM {norm_elapse_time} sec')
 
         # time record
-        tagged_docs[0]['elapse_time'] = {
-            'mtner_elapse_time': mtner_elapse_time,
-            'ner_elapse_time': ner_elapse_time,
-            # 'r_norm_elapse_time': r_norm_elapse_time,
-            # 'n_norm_elapse_time': n_norm_elapse_time,
-            # 'norm_elapse_time': norm_elapse_time,
-        }
+        [d.update({'elapse_time': {'mtner_elapse_time': mtner_elapse_time, 'ner_elapse_time': ner_elapse_time}}) for d
+         in tagged_docs]
 
         # Delete temp files
         os.remove(input_mtner)
         os.remove(output_mtner)
 
-        return tagged_docs[0]
+        return tagged_docs
 
     def resolve_overlap(self, tagged_docs, tmvar_docs):
         """
