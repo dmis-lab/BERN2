@@ -386,8 +386,9 @@ def run_bern2_on_batch(df: pd.DataFrame, text_col: str = 'content'):
 def run_bern2_annotation(list_of_texts: list) -> list:
     if initialize_bern2_annotator.annotator is None:
         raise Exception('BERN2 annotator is not initialized!')
-    result = initialize_bern2_annotator.annotator.annotate_text(list_of_texts)
-    return result
+    results = initialize_bern2_annotator.annotator.annotate_text(list_of_texts)
+    annotations = [result['annotations'] for result in results]
+    return annotations
 
 
 def initialize_bern2_annotator(max_word_len: int = 50,
