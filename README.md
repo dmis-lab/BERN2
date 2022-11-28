@@ -1,6 +1,6 @@
 # BERN2
 
-We present **BERN2** (Advanced **B**iomedical **E**ntity **R**ecognition and **N**ormalization), a tool that improves the previous neural network-based NER tool by employing a multi-task NER model and neural network-based NEN models to achieve much faster and more accurate inference. This repository provides a way to host your own BERN2 server. Currently, BERN2 is running on a hosting server with 64-core CPU, 512GB Memory, and 12GB GPU (NVIDIA TITAN Xp). See our [paper](https://arxiv.org/abs/2201.02080) for more details.
+We present **BERN2** (Advanced **B**iomedical **E**ntity **R**ecognition and **N**ormalization), a tool that improves the previous neural network-based NER tool by employing a multi-task NER model and neural network-based NEN models to achieve much faster and more accurate inference. This repository provides a way to host your own BERN2 server. Currently, BERN2 is running on a hosting server with 64-core CPU, 512GB Memory, and 12GB GPU. See our [paper](https://arxiv.org/abs/2201.02080) for more details.
 
 ***** **Try BERN2 at [http://bern2.korea.ac.kr](http://bern2.korea.ac.kr)** ***** 
 
