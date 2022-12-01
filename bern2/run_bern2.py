@@ -28,6 +28,14 @@ argparser.add_argument("--keep_files", action="store_true")
 args = argparser.parse_args()
 
 
+def append_text_to_pubtator(input_mtner: str, pmid: str, text: str):
+    # Write input str to a .PubTator format file
+    with open(input_mtner, 'a', encoding='utf-8') as f:
+        # only abstract
+        f.write(f'{pmid}|t|\n')
+        f.write(f'{pmid}|a|{text}\n\n')
+
+
 class LocalBERN2():
     def __init__(self,
                  mtner_home,
@@ -62,21 +70,21 @@ class LocalBERN2():
 
         print(datetime.now().strftime(self.time_format), 'BERN2 LOADED..')
 
-    def annotate_text(self, text):
-        text = text.strip()
-        base_name = self.generate_base_name(text)  # for the name of temporary files
-        text = self.preprocess_input(text, base_name)
-        output = self.tag_entities(text, base_name)
-        output['error_code'], output['error_message'] = 0, ""
+    def annotate_text(self, list_of_texts: list):
+        # TODO: Make this a pd.Series instead of a list
+        list_of_texts = [text.strip() for text in list_of_texts]
+        base_name = self.generate_base_name(list_of_texts[0])  # for the name of temporary files
+        list_of_texts = [self.preprocess_input(text, base_name) for text in list_of_texts]
+        output = self.tag_entities(list_of_texts, base_name)
         output = self.post_process_output(output)
         return output
 
     def post_process_output(self, output):
         # split_cuis (e.g., "OMIM:608627,MESH:C563895" => ["OMIM:608627","MESH:C563895"])
-        output = self.split_cuis(output)
+        output = [self.split_cuis(doc) for doc in output]
 
         # standardize prefixes (e.g., EntrezGene:10533 => NCBIGene:10533)
-        output = self.standardize_prefixes(output)
+        output = [self.standardize_prefixes(doc) for doc in output]
 
         return output
 
@@ -182,17 +190,8 @@ class LocalBERN2():
 
         return text
 
-    def tag_entities(self, text, base_name):
-        n_ascii_letters = 0
-        for l in text:
-            if l not in string.ascii_letters:
-                continue
-            n_ascii_letters += 1
-
-        if n_ascii_letters == 0:
-            text = 'No ascii letters. Please enter your text in English.'
-
-        base_name = self.generate_base_name(text)
+    def tag_entities(self, list_of_texts: list, base_name):
+        base_name = self.generate_base_name(list_of_texts[0])
         print(datetime.now().strftime(self.time_format),
               f'id: {base_name}')
 
@@ -208,11 +207,9 @@ class LocalBERN2():
         if not os.path.exists(self.mtner_home + '/output'):
             os.mkdir(self.mtner_home + '/output')
 
-        # Write input str to a .PubTator format file
-        with open(input_mtner, 'w', encoding='utf-8') as f:
-            # only abstract
-            f.write(f'{base_name}|t|\n')
-            f.write(f'{base_name}|a|{text}\n\n')
+        for text in list_of_texts:
+            pmid = self.generate_base_name(text)
+            append_text_to_pubtator(input_mtner, pmid, text)
 
         ner_start_time = time.time()
         ner_result = self.ner(pubtator_file, output_mtner, base_name)
@@ -256,26 +253,21 @@ class LocalBERN2():
         #       f'[{base_name}] Neural Normalization {n_norm_elapse_time} sec')
 
         # Convert to PubAnnotation JSON
-        tagged_docs[0] = get_pub_annotation(tagged_docs[0])
+        tagged_docs = [get_pub_annotation(tagged_doc) for tagged_doc in tagged_docs]
 
         # norm_elapse_time = r_norm_elapse_time + n_norm_elapse_time
         # print(datetime.now().strftime(self.time_format),
         #       f'[{base_name}] ALL NORM {norm_elapse_time} sec')
 
         # time record
-        tagged_docs[0]['elapse_time'] = {
-            'mtner_elapse_time': mtner_elapse_time,
-            'ner_elapse_time': ner_elapse_time,
-            # 'r_norm_elapse_time': r_norm_elapse_time,
-            # 'n_norm_elapse_time': n_norm_elapse_time,
-            # 'norm_elapse_time': norm_elapse_time,
-        }
+        [d.update({'elapse_time': {'mtner_elapse_time': mtner_elapse_time, 'ner_elapse_time': ner_elapse_time}}) for d
+         in tagged_docs]
 
         # Delete temp files
         os.remove(input_mtner)
         os.remove(output_mtner)
 
-        return tagged_docs[0]
+        return tagged_docs
 
     def resolve_overlap(self, tagged_docs, tmvar_docs):
         """
@@ -350,13 +342,12 @@ class LocalBERN2():
         mtner_recognize(mt_ner_model, pubtator_file, base_name, self.mtner_home)
 
         with open(output_mtner, 'r', encoding='utf-8') as f:
-            tagged_docs = [json.load(f)]
+            tagged_docs = json.load(f)
 
         num_entities = tagged_docs[0]['num_entities']
         if tagged_docs is None:
             return None
 
-        assert len(tagged_docs) == 1
         mtner_elapse_time = time.time() - start_time
         print(datetime.now().strftime(self.time_format),
               f'[{base_name}] Multi-task NER {mtner_elapse_time} sec, #entities: {num_entities}')
@@ -392,11 +383,11 @@ def run_bern2_on_batch(df: pd.DataFrame, text_col: str = 'content'):
     return res_df
 
 
-def run_bern2_annotation(text: str) -> list:
+def run_bern2_annotation(list_of_texts: list) -> list:
     if initialize_bern2_annotator.annotator is None:
         raise Exception('BERN2 annotator is not initialized!')
-    result = initialize_bern2_annotator.annotator.annotate_text(text)
-    annotations = result['annotations']
+    results = initialize_bern2_annotator.annotator.annotate_text(list_of_texts)
+    annotations = [result['annotations'] for result in results]
     return annotations
 
 
@@ -425,25 +416,3 @@ def get_initialized_bern():
         keep_files=args.keep_files)
 
     return bern2
-
-
-if __name__ == '__main__':
-
-    tagging_file_path = "/Volumes/GoogleDrive/Shared drives/Navina/Data Science/Diagnoses Entity Recognition/" \
-                        "tagging_results/summary_both_2703_after_fixing.csv"
-
-    bern2 = get_initialized_bern()
-    gt_df = pd.read_csv(tagging_file_path)
-    text = []
-    for id in gt_df.doc_id.unique():
-        doc = gt_df.query(f"doc_id == '{id}'")
-        text_series = doc.fillna('').apply(lambda row: row.text + (' ' * row.ws), axis=1)
-        cur_text = ''.join(text_series).replace('\ub200', '')
-        text.append(cur_text)
-
-    results = []
-    for cur_text in text:
-        result = bern2.annotate_text(cur_text)
-        results.append(result)
-    res_df = pd.DataFrame(results)
-    print(results)
