@@ -11,4 +11,4 @@ Flask
 faiss-cpu==1.7.3
 bioregistry
 python-dotenv~=0.19.2
-boto3~=1.16.19
+boto3~=1.26.25
