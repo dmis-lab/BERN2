@@ -24,6 +24,10 @@ argparser.add_argument('--mtner_home', help='biomedical language model home',
 argparser.add_argument('--time_format', help='time format', default='[%d/%b/%Y %H:%M:%S.%f]')
 argparser.add_argument("--use_neural_normalizer", action="store_true")
 argparser.add_argument("--keep_files", action="store_true")
+argparser.add_argument("--ner_model_name_or_path", type=str, default="dmis-lab/bern2-ner")
+argparser.add_argument("--load_model_manually", action="store_true")
+argparser.add_argument("--s3_bucket", type=str, default="data-science-repository")
+argparser.add_argument("--local_output", type=str, default="local_output")
 
 args = argparser.parse_args()
 
@@ -43,9 +47,18 @@ class LocalBERN2():
                  max_word_len=50,
                  seed=2019,
                  use_neural_normalizer=True,
-                 keep_files=False):
+                 ner_model_name_or_path='dmis-lab/bern2-ner',
+                 load_model_manually=False,
+                 keep_files=False,
+                 s3_bucket='data-science-repository',
+                 local_output='local_output'
+                 ):
 
         self.time_format = time_format
+        self.ner_model_name_or_path = ner_model_name_or_path
+        self.load_model_manually = load_model_manually
+        self.s3_bucket = s3_bucket
+        self.local_output = local_output
 
         print(datetime.now().strftime(self.time_format), 'BERN2 LOADING..')
         random.seed(seed)
@@ -57,9 +70,9 @@ class LocalBERN2():
         # delete prev. version outputs
         if not keep_files:
             delete_files('./output')
-            delete_files(os.path.join('multi_ner', 'input'))
-            delete_files(os.path.join('multi_ner', 'tmp'))
-            delete_files(os.path.join('multi_ner', 'output'))
+        delete_files(os.path.join('multi_ner', 'input'))
+        delete_files(os.path.join('multi_ner', 'tmp'))
+        delete_files(os.path.join('multi_ner', 'output'))
 
         # FOR NER
         self.mtner_home = mtner_home
@@ -325,14 +338,19 @@ class LocalBERN2():
         start_time = time.time()
         argparser = argparse.ArgumentParser()
         argparser.add_argument('--seed', type=int, help='random seed for initialization', default=1)
-        argparser.add_argument('--model_name_or_path', default='dmis-lab/bern2-ner')
         argparser.add_argument('--max_seq_length', type=int,
                                help='The maximum total input sequence length after tokenization. Sequences longer than this will be truncated, sequences shorter will be padded.',
                                default=128)
         argparser.add_argument('--mtner_home', help='biomedical language model home')
         argparser.add_argument('--disease_only', help='use disease only NER', type=bool, default=True)
         argparser.add_argument('--time_format', help='time format', default='[%d/%b/%Y %H:%M:%S.%f]')
+        argparser.add_argument("--ner_model_name_or_path", type=str, default="dmis-lab/bern2-ner")
+        argparser.add_argument("--load_model_manually", action="store_true")
+        argparser.add_argument("--s3_bucket", type=str, default="data-science-repository")
+        argparser.add_argument("--local_output", type=str, default="local_output")
         mt_ner_params = argparser.parse_args()
+        mt_ner_params.model_name_or_path = self.ner_model_name_or_path
+        mt_ner_params.load_model_manually = self.load_model_manually
 
         mt_ner_model = MTNER(mt_ner_params)
         base_name = pubtator_file.split('.')[0]
@@ -393,14 +411,20 @@ def run_bern2_annotation(list_of_texts: list) -> list:
 
 def initialize_bern2_annotator(max_word_len: int = 50,
                                mtner_home: str = os.path.join(os.path.expanduser('~'), 'bern', 'mtnerHome'),
-                               use_neural_normalizer: bool = False, keep_files: bool = False):
+                               use_neural_normalizer: bool = False, keep_files: bool = False,
+                               ner_model_name_or_path: str = 'dmis-lab/bern2-ner', load_model_manually: bool = False,
+                               s3_bucket: str = 'data-science-repository', local_output: str = 'local_output'):
     if initialize_bern2_annotator.annotator is None:
         initialize_bern2_annotator.annotator = LocalBERN2(max_word_len=max_word_len,
                                                           seed=args.seed,
                                                           mtner_home=mtner_home,
                                                           time_format=args.time_format,
                                                           use_neural_normalizer=use_neural_normalizer,
-                                                          keep_files=keep_files)
+                                                          keep_files=keep_files,
+                                                          ner_model_name_or_path=ner_model_name_or_path,
+                                                          load_model_manually=load_model_manually,
+                                                          s3_bucket=s3_bucket,
+                                                          local_output=local_output)
 
 
 initialize_bern2_annotator.annotator = None
@@ -413,6 +437,10 @@ def get_initialized_bern():
         mtner_home=args.mtner_home,
         time_format=args.time_format,
         use_neural_normalizer=args.use_neural_normalizer,
-        keep_files=args.keep_files)
+        keep_files=args.keep_files,
+        ner_model_name_or_path=args.ner_model_name_or_path,
+        load_model_manually=args.load_model_manually,
+        s3_bucket=args.s3_bucket,
+        local_output=args.local_output)
 
     return bern2
