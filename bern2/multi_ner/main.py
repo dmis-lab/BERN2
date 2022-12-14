@@ -19,6 +19,7 @@ import logging
 import os
 import time
 import json
+import boto3
 import torch
 import argparse
 import numpy as np
@@ -47,6 +48,9 @@ from bern2.multi_ner.ops import (
     Profile,
 )
 from bern2.multi_ner.modeling import RoBERTaMultiNER2
+
+from dotenv import load_dotenv
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
@@ -500,6 +504,10 @@ class MTNER:
         self.label2id = {label: i for i, label in enumerate(self.labels)}
         self.num_labels = len(self.labels)
 
+        if self.params.load_model_manually:
+            self.params.model_name_or_path = os.path.join(self.params.local_output, self.params.model_name_or_path)
+            self._download_model_locally()
+
         self.config = AutoConfig.from_pretrained(
             self.params.model_name_or_path,
             num_labels=self.num_labels,
@@ -807,6 +815,21 @@ class MTNER:
                 preds_list[i].append(preds[i][j])
 
         return np.array(preds_list)
+
+    def _download_model_locally(self):
+        s3 = boto3.client("s3", aws_access_key_id=os.environ['AwsAccessKey'],
+                          aws_secret_access_key=os.environ['AwsSecretAccessKey'],
+                          region_name='us-east-1')
+        prefix = self.params.model_name_or_path.replace(self.params.local_output + '/', '')
+        model_files_s3_paths = s3.list_objects_v2(Bucket=self.params.s3_bucket, Prefix=prefix)['Contents']
+        model_files_s3_paths = [x['Key'] for x in model_files_s3_paths]
+        if not os.path.exists(self.params.model_name_or_path):
+            os.makedirs(self.params.model_name_or_path)
+
+        for model_file_s3_path in model_files_s3_paths:
+            model_file_local_path = os.path.join(self.params.model_name_or_path, model_file_s3_path.split('/')[-1])
+            if not os.path.exists(model_file_local_path):
+                s3.download_file(self.params.s3_bucket, model_file_s3_path, model_file_local_path)
 
 
 def main():
