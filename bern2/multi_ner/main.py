@@ -691,13 +691,17 @@ class MTNER:
                     self.predict_dict[etype][pmid].append(de_labels[piv + de_i])
                     self.prob_dict[etype][pmid].append(de_logits[piv + de_i])
                     de_i += 1
-                    if len(self.predict_dict[etype][pmid][-1]) == len(
-                            self.json_dict[pmid]['words'][
-                                len(self.predict_dict[etype][pmid]) - 1]):
-                        sent_idx += 1
-                        overlen = False
-                    else:
-                        overlen = True
+                    try:
+                        if len(self.predict_dict[etype][pmid][-1]) == len(
+                                self.json_dict[pmid]['words'][
+                                    len(self.predict_dict[etype][pmid]) - 1]):
+                            sent_idx += 1
+                            overlen = False
+                        else:
+                            overlen = True
+                    except IndexError as e:
+                        print(f"Error in the file {pmid}!")
+                        break
 
                 if sent_idx == len(self.json_dict[pmid]['words']):
                     piv += de_i
