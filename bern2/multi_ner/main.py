@@ -50,6 +50,7 @@ from bern2.multi_ner.ops import (
 from bern2.multi_ner.modeling import RoBERTaMultiNER2
 
 from dotenv import load_dotenv
+
 load_dotenv()
 
 logger = logging.getLogger(__name__)
@@ -677,12 +678,15 @@ class MTNER:
                         break
                     self.prob_dict[etype][pmid][-1].extend(de_logits[piv + de_i])
                     de_i += 1
-                    if len(self.predict_dict[etype][pmid][-1]) == len(
-                            self.json_dict[pmid]['words'][
-                                len(self.predict_dict[etype][pmid]) - 1]):
-                        sent_idx += 1
-                        overlen = False
-
+                    try:
+                        if len(self.predict_dict[etype][pmid][-1]) == len(
+                                self.json_dict[pmid]['words'][
+                                    len(self.predict_dict[etype][pmid]) - 1]):
+                            sent_idx += 1
+                            overlen = False
+                    except IndexError as e:
+                        print(f"Error in the file {pmid}!")
+                        break
                 else:
                     self.predict_dict[etype][pmid].append(de_labels[piv + de_i])
                     self.prob_dict[etype][pmid].append(de_logits[piv + de_i])
@@ -845,6 +849,7 @@ def main():
     args = argparser.parse_args()
 
     mtner = MTNER(args)
+
 
 if __name__ == "__main__":
     main()
