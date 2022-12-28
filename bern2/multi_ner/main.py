@@ -686,6 +686,7 @@ class MTNER:
                             overlen = False
                     except IndexError as e:
                         print(f"Error in the file {pmid}!")
+                        print(f"Error content is {data}")
                         break
                 else:
                     self.predict_dict[etype][pmid].append(de_labels[piv + de_i])
@@ -701,6 +702,7 @@ class MTNER:
                             overlen = True
                     except IndexError as e:
                         print(f"Error in the file {pmid}!")
+                        print(f"Error content is {data}")
                         break
 
                 if sent_idx == len(self.json_dict[pmid]['words']):
