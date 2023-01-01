@@ -657,7 +657,7 @@ class MTNER:
         self.predict_dict[etype] = dict()
         self.prob_dict[etype] = dict()
         piv = 0
-        for data in self.data_list:
+        for doc_index, data in enumerate(self.data_list):
             pmid = data['pmid']
             self.predict_dict[etype][pmid] = list()
             self.prob_dict[etype][pmid] = list()
@@ -685,7 +685,7 @@ class MTNER:
                             sent_idx += 1
                             overlen = False
                     except IndexError as e:
-                        print(f"Error in the file {pmid}!")
+                        print(f"Error in the file #{doc_index}: {pmid}!")
                         print(f"Error content is {data}")
                         break
                 else:
@@ -701,7 +701,7 @@ class MTNER:
                         else:
                             overlen = True
                     except IndexError as e:
-                        print(f"Error in the file {pmid}!")
+                        print(f"Error in the file #{doc_index}: {pmid}!")
                         print(f"Error content is {data}")
                         break
 
