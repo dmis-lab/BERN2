@@ -220,7 +220,10 @@ class LocalBERN2():
         if not os.path.exists(self.mtner_home + '/output'):
             os.mkdir(self.mtner_home + '/output')
 
-        for text in list_of_texts:
+        for i, text in enumerate(list_of_texts):
+            if len(text) == 0:
+                text = "lorem ipsum dolor sit amet"
+                print(f'File #{i} is empty!')
             pmid = self.generate_base_name(text)
             append_text_to_pubtator(input_mtner, pmid, text)
 
