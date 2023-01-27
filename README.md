@@ -51,7 +51,7 @@ sudo systemctl start mongod
 sudo systemctl status mongod
 ```
 
-Then, you need to download resources (e.g., external modules or dictionaries) for running BERN2. Note that you will need 70GB of free disk space. You can also download the resource file from [google drive](https://drive.google.com/file/d/1LsXcXDzgjY9mnOyDmrX1HsMfewYMKvN9/view?usp=sharing).
+Then, you need to download resources (e.g., external modules or dictionaries) for running BERN2. Note that you will need 70GB of free disk space. You can also download the resource file from [google drive](https://drive.google.com/file/d/147b3OhU4IdQi121ZBUSqO1XKdKoXE5DK/view?usp=sharing).
 
 ```
 wget http://nlp.dmis.korea.edu/projects/bern2-sung-et-al-2022/resources_v1.1.b.tar.gz
