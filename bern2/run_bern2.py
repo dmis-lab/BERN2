@@ -28,6 +28,7 @@ argparser.add_argument("--ner_model_name_or_path", type=str, default="dmis-lab/b
 argparser.add_argument("--load_model_manually", action="store_true")
 argparser.add_argument("--s3_bucket", type=str, default="data-science-repository")
 argparser.add_argument("--local_output", type=str, default="local_output")
+argparser.add_argument("--load_model_manually", action="store_true")
 
 args = argparser.parse_args()
 
@@ -51,7 +52,8 @@ class LocalBERN2():
                  load_model_manually=False,
                  keep_files=False,
                  s3_bucket='data-science-repository',
-                 local_output='local_output'
+                 local_output='local_output',
+                 use_remote_proxy=False
                  ):
 
         self.time_format = time_format
@@ -59,6 +61,7 @@ class LocalBERN2():
         self.load_model_manually = load_model_manually
         self.s3_bucket = s3_bucket
         self.local_output = local_output
+        self.use_remote_proxy = use_remote_proxy
 
         print(datetime.now().strftime(self.time_format), 'BERN2 LOADING..')
         random.seed(seed)
@@ -351,9 +354,11 @@ class LocalBERN2():
         argparser.add_argument("--load_model_manually", action="store_true")
         argparser.add_argument("--s3_bucket", type=str, default="data-science-repository")
         argparser.add_argument("--local_output", type=str, default="local_output")
+        argparser.add_argument("--use_remote_proxy", action="store_true")
         mt_ner_params = argparser.parse_args()
         mt_ner_params.model_name_or_path = self.ner_model_name_or_path
         mt_ner_params.load_model_manually = self.load_model_manually
+        mt_ner_params.use_remote_proxy = self.use_remote_proxy
 
         mt_ner_model = MTNER(mt_ner_params)
         base_name = pubtator_file.split('.')[0]
@@ -416,7 +421,8 @@ def initialize_bern2_annotator(max_word_len: int = 50,
                                mtner_home: str = os.path.join(os.path.expanduser('~'), 'bern', 'mtnerHome'),
                                use_neural_normalizer: bool = False, keep_files: bool = False,
                                ner_model_name_or_path: str = 'dmis-lab/bern2-ner', load_model_manually: bool = False,
-                               s3_bucket: str = 'data-science-repository', local_output: str = 'local_output'):
+                               s3_bucket: str = 'data-science-repository', local_output: str = 'local_output',
+                               use_remote_proxy: bool = False):
     if initialize_bern2_annotator.annotator is None:
         initialize_bern2_annotator.annotator = LocalBERN2(max_word_len=max_word_len,
                                                           seed=args.seed,
@@ -427,7 +433,8 @@ def initialize_bern2_annotator(max_word_len: int = 50,
                                                           ner_model_name_or_path=ner_model_name_or_path,
                                                           load_model_manually=load_model_manually,
                                                           s3_bucket=s3_bucket,
-                                                          local_output=local_output)
+                                                          local_output=local_output,
+                                                          use_remote_proxy=use_remote_proxy)
 
 
 initialize_bern2_annotator.annotator = None
@@ -444,6 +451,7 @@ def get_initialized_bern():
         ner_model_name_or_path=args.ner_model_name_or_path,
         load_model_manually=args.load_model_manually,
         s3_bucket=args.s3_bucket,
-        local_output=args.local_output)
+        local_output=args.local_output,
+        use_remote_proxy=args.use_remote_proxy)
 
     return bern2

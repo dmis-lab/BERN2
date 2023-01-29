@@ -518,11 +518,15 @@ class MTNER:
         self.tokenizer = AutoTokenizer.from_pretrained(
             self.params.model_name_or_path,
         )
-        self.model = RoBERTaMultiNER2.from_pretrained(
-            self.params.model_name_or_path,
-            num_labels=self.num_labels,
-            config=self.config,
-        )
+        if self.params.use_remote_proxy:
+            # Insert code for triton here
+            pass
+        else:
+            self.model = RoBERTaMultiNER2.from_pretrained(
+                self.params.model_name_or_path,
+                num_labels=self.num_labels,
+                config=self.config,
+            )
         self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
         self.model = self.model.to(self.device)
         self.entity_types = ['disease', 'drug', 'gene', 'species', 'cell_line', 'DNA', 'RNA', 'cell_type']
