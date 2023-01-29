@@ -28,7 +28,7 @@ argparser.add_argument("--ner_model_name_or_path", type=str, default="dmis-lab/b
 argparser.add_argument("--load_model_manually", action="store_true")
 argparser.add_argument("--s3_bucket", type=str, default="data-science-repository")
 argparser.add_argument("--local_output", type=str, default="local_output")
-argparser.add_argument("--load_model_manually", action="store_true")
+argparser.add_argument("--use_remote_proxy", action="store_true")
 
 args = argparser.parse_args()
 
