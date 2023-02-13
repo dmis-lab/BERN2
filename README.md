@@ -5,7 +5,7 @@ We present **BERN2** (Advanced **B**iomedical **E**ntity **R**ecognition and **N
 ***** **Try BERN2 at [http://bern2.korea.ac.kr](http://bern2.korea.ac.kr)** ***** 
 
 ### Updates
-* \[**Feb 13, 2023**\] The BERN2 server is currently down due to an internal server room issue and is expected to be restored by 2022-02-19 12:00 PM (UTC-0). Sorry for the inconvenience.
+* \[**Feb 13, 2023**\] The BERN2 server is currently down due to an internal server issue and is expected to be restored by 2022-02-19 12:00 PM (UTC-0). Sorry for the inconvenience.
 * \[**Jun 26, 2022**\] We updated our resource file ([resources_v1.1.b.tar.gz](http://nlp.dmis.korea.edu/projects/bern2-sung-et-al-2022/resources_v1.1.b.tar.gz)) to address the issue regarding CRF++. (issue https://github.com/dmis-lab/BERN2/issues/17). 
 * \[**Apr 14, 2022**\] We updated our resource file ([resources_v1.1.a.tar.gz](http://nlp.dmis.korea.edu/projects/bern2-sung-et-al-2022/resources_v1.1.a.tar.gz)) to address the issue where BERN2 is not working on Windows (issue https://github.com/dmis-lab/BERN2/issues/4). 
 * \[**Apr 14, 2022**\] We increased the API limit of our [web service](http://bern2.korea.ac.kr) from '100 reqeusts per 100 seconds' to '**300** requests per 100 seconds' per user.
