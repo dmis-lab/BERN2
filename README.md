@@ -62,7 +62,7 @@ md5sum resources_v1.1.b.tar.gz
 # make sure the md5sum is 'c0db4e303d1ccf6bf56b42eda2fe05d0'
 rm -rf resources_v1.1.b.tar.gz
 
-# (For Linux/MacOS Users) install CRF 
+# (For Linux Users) install CRF 
 cd resources/GNormPlusJava
 tar -zxvf CRF++-0.58.tar.gz
 mv CRF++-0.58 CRF
@@ -87,7 +87,7 @@ The following command runs BERN2.
 export CUDA_VISIBLE_DEVICES=0
 cd scripts
 
-# For Linux and MacOS
+# For Linux
 bash run_bern2.sh
 
 # For Windows
