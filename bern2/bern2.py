@@ -243,10 +243,15 @@ class BERN2():
         
         if status_code == 200:
             is_abs = False
+            is_title = False
             for line in response.text.split("\n"):
                 if line.startswith("TI  -"):
+                    is_title = True
                     title = line.replace("TI  -", "").strip()
+                elif is_title and line.startswith("      "):
+                    title += " " + line.strip()
                 elif line.startswith("AB  -"):
+                    is_title = False
                     is_abs = True
                     abstract += line.replace("AB  -", "").strip()
                 elif is_abs and line.startswith("      "):
