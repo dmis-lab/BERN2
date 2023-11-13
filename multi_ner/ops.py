@@ -231,7 +231,11 @@ def detokenize(tokens, predicts, logits):
             tmp_s = list()
             continue
         elif t[:2] == '##':  # if it is a piece of a word (broken by Word Piece tokenizer)
-            tmp_p[-1] = tmp_p[-1] + t[2:]  # append pieces
+            try:
+                tmp_p[-1] = tmp_p[-1] + t[2:]  # append pieces
+            except:
+                # for sliding window start point has ## - add start point to end tokens of previous results, update 23.11.13
+                bert_toks[-1][-1] += t[2:]
         elif t.startswith('Ġ'): # roberta tokenizer
             t = t.replace('Ġ', ' ')
             tmp_p[-1] = tmp_p[-1] + t

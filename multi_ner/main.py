@@ -111,7 +111,7 @@ class DataProcessor(object):
                 words = sent[:]
                 labels = ['O'] * len(words)
                 entity_labels = [str(0)] * len(words)
-
+                
                 if len(words) >= 30:
                     while len(words) >= 30:
                         tmplabel = labels[:30]
@@ -299,108 +299,120 @@ def convert_examples_to_features(
 
         # Account for [CLS] and [SEP] with "- 2" and with "- 3" for RoBERTa.
         special_tokens_count = tokenizer.num_special_tokens_to_add()
-        if len(tokens) > max_seq_length - special_tokens_count:
-            tokens = tokens[: (max_seq_length - special_tokens_count)]
-            label_ids = label_ids[: (max_seq_length - special_tokens_count)]
-            det_tokens = det_tokens[: (max_seq_length - special_tokens_count)]
+        ## truncating tokens with max_seq_length
+        # if len(tokens) > max_seq_length - special_tokens_count:
+        #     tokens = tokens[: (max_seq_length - special_tokens_count)]
+        #     label_ids = label_ids[: (max_seq_length - special_tokens_count)]
+        #     det_tokens = det_tokens[: (max_seq_length - special_tokens_count)]
 
-        # The convention in BERT is:
-        # (a) For sequence pairs:
-        #  tokens:   [CLS] is this jack ##son ##ville ? [SEP] no it is not . [SEP]
-        #  type_ids:   0   0  0    0    0     0       0   0   1  1  1  1   1   1
-        # (b) For single sequences:
-        #  tokens:   [CLS] the dog is hairy . [SEP]
-        #  type_ids:   0   0   0   0  0     0   0
-        #
-        # Where "type_ids" are used to indicate whether this is the first
-        # sequence or the second sequence. The embedding vectors for `type=0` and
-        # `type=1` were learned during pre-training and are added to the wordpiece
-        # embedding vector (and position vector). This is not *strictly* necessary
-        # since the [SEP] token unambiguously separates the sequences, but it makes
-        # it easier for the model to learn the concept of sequences.
-        #
-        # For classification tasks, the first vector (corresponding to [CLS]) is
-        # used as as the "sentence vector". Note that this only makes sense because
-        # the entire model is fine-tuned.
-        tokens += [sep_token]
-        label_ids += [pad_token_label_id]
-        det_tokens += [sep_token]
+        # for sliding window tokens - update 23.11.13
+        for i in range(0, (len(tokens) // max_seq_length) + 1):
+            if i == 0:
+                window_tokens = tokens[i*max_seq_length:(i+1)*max_seq_length-special_tokens_count]
+                window_label_ids = label_ids[i*max_seq_length:(i+1)*max_seq_length-special_tokens_count]
+                window_det_tokens = det_tokens[i*max_seq_length:(i+1)*max_seq_length-special_tokens_count]
+            elif i >= 1:
+                window_tokens = tokens[i*max_seq_length-special_tokens_count:(i+1)*max_seq_length-special_tokens_count]
+                window_label_ids = label_ids[i*max_seq_length-special_tokens_count:(i+1)*max_seq_length-special_tokens_count]
+                window_det_tokens = det_tokens[i*max_seq_length-special_tokens_count:(i+1)*max_seq_length-special_tokens_count]
 
-        if sep_token_extra:
-            # roberta uses an extra separator b/w pairs of sentences
-            tokens += [sep_token]
-            label_ids += [pad_token_label_id]
-            det_tokens += [sep_token]
+            # The convention in BERT is:
+            # (a) For sequence pairs:
+            #  tokens:   [CLS] is this jack ##son ##ville ? [SEP] no it is not . [SEP]
+            #  type_ids:   0   0  0    0    0     0       0   0   1  1  1  1   1   1
+            # (b) For single sequences:
+            #  tokens:   [CLS] the dog is hairy . [SEP]
+            #  type_ids:   0   0   0   0  0     0   0
+            #
+            # Where "type_ids" are used to indicate whether this is the first
+            # sequence or the second sequence. The embedding vectors for `type=0` and
+            # `type=1` were learned during pre-training and are added to the wordpiece
+            # embedding vector (and position vector). This is not *strictly* necessary
+            # since the [SEP] token unambiguously separates the sequences, but it makes
+            # it easier for the model to learn the concept of sequences.
+            #
+            # For classification tasks, the first vector (corresponding to [CLS]) is
+            # used as as the "sentence vector". Note that this only makes sense because
+            # the entire model is fine-tuned.
+            window_tokens += [sep_token]
+            window_label_ids += [pad_token_label_id]
+            window_det_tokens += [sep_token]
 
-        # make entity type label index for multiner
-        entity_type_ids = [int(example.entity_labels[0])] * len(tokens)
-        segment_ids = [sequence_a_segment_id] * len(tokens)
-        if cls_token_at_end:
-            tokens += [cls_token]
-            label_ids += [pad_token_label_id]
-            segment_ids += [cls_token_segment_id]
-            entity_type_ids += [int(example.entity_labels[0])]
-            det_tokens += [cls_token]
-        else:
-            tokens = [cls_token] + tokens
-            label_ids = [pad_token_label_id] + label_ids
-            segment_ids = [cls_token_segment_id] + segment_ids
-            entity_type_ids = [int(example.entity_labels[0])] + entity_type_ids
-            det_tokens = [cls_token] + det_tokens
+            if sep_token_extra:
+                # roberta uses an extra separator b/w pairs of sentences
+                window_tokens += [sep_token]
+                window_label_ids += [pad_token_label_id]
+                window_det_tokens += [sep_token]
 
-        input_ids = tokenizer.convert_tokens_to_ids(tokens)
-        
-        # The mask has 1 for real tokens and 0 for padding tokens. Only real
-        # tokens are attended to.
-        input_mask = [1 if mask_padding_with_zero else 0] * len(input_ids)
+            # make entity type label index for multiner
+            entity_type_ids = [int(example.entity_labels[0])] * len(window_tokens)
+            segment_ids = [sequence_a_segment_id] * len(window_tokens)
+            if cls_token_at_end:
+                window_tokens += [cls_token]
+                window_label_ids += [pad_token_label_id]
+                segment_ids += [cls_token_segment_id]
+                entity_type_ids += [int(example.entity_labels[0])]
+                window_det_tokens += [cls_token]
+            else:
+                window_tokens = [cls_token] + window_tokens
+                window_label_ids = [pad_token_label_id] + window_label_ids
+                segment_ids = [cls_token_segment_id] + segment_ids
+                entity_type_ids = [int(example.entity_labels[0])] + entity_type_ids
+                window_det_tokens = [cls_token] + window_det_tokens
 
-        # Zero-pad up to the sequence length.
-        padding_length = max_seq_length - len(input_ids)
-        
-        if pad_on_left:
-            input_ids = ([pad_token] * padding_length) + input_ids
-            input_mask = ([0 if mask_padding_with_zero else 1] * padding_length) + input_mask
-            segment_ids = ([pad_token_segment_id] * padding_length) + segment_ids
-            label_ids = ([pad_token_label_id] * padding_length) + label_ids
-            entity_type_ids = ([int(example.entity_labels[0])] * padding_length) + entity_type_ids
-            tokens = (["**NULL**"] * padding_length) + tokens
-            det_tokens = (["**NULL**"] * padding_length) + det_tokens
-        else:
-            input_ids += [pad_token] * padding_length
-            input_mask += [0 if mask_padding_with_zero else 1] * padding_length
-            segment_ids += [pad_token_segment_id] * padding_length
-            label_ids += [pad_token_label_id] * padding_length
-            entity_type_ids += [int(example.entity_labels[0])] * padding_length
-            tokens += ["**NULL**"] * padding_length
-            det_tokens += ["**NULL**"] * padding_length
+            input_ids = tokenizer.convert_tokens_to_ids(window_tokens)
+            # The mask has 1 for real tokens and 0 for padding tokens. Only real
+            # tokens are attended to.
+            input_mask = [1 if mask_padding_with_zero else 0] * len(input_ids)
 
-        assert len(input_ids) == max_seq_length
-        assert len(input_mask) == max_seq_length
-        assert len(segment_ids) == max_seq_length
-        assert len(label_ids) == max_seq_length
-        assert len(entity_type_ids) == max_seq_length
-        assert len(tokens) == max_seq_length
+            # Zero-pad up to the sequence length.
+            padding_length = max_seq_length - len(input_ids)
+            
+            if pad_on_left:
+                input_ids = ([pad_token] * padding_length) + input_ids
+                input_mask = ([0 if mask_padding_with_zero else 1] * padding_length) + input_mask
+                segment_ids = ([pad_token_segment_id] * padding_length) + segment_ids
+                window_label_ids = ([pad_token_label_id] * padding_length) + window_label_ids
+                entity_type_ids = ([int(example.entity_labels[0])] * padding_length) + entity_type_ids
+                window_tokens = (["**NULL**"] * padding_length) + window_tokens
+                window_det_tokens = (["**NULL**"] * padding_length) + window_det_tokens
+            else:
+                input_ids += [pad_token] * padding_length
+                input_mask += [0 if mask_padding_with_zero else 1] * padding_length
+                segment_ids += [pad_token_segment_id] * padding_length
+                window_label_ids += [pad_token_label_id] * padding_length
+                entity_type_ids += [int(example.entity_labels[0])] * padding_length
+                window_tokens += ["**NULL**"] * padding_length
+                window_det_tokens += ["**NULL**"] * padding_length
 
-        if ex_index < 1:
-            logger.info("*** Example ***")
-            logger.info("guid: %s", example.guid)
-            logger.info("tokens: %s", " ".join([str(x) for x in tokens]))
-            logger.info("input_ids: %s", " ".join([str(x) for x in input_ids]))
-            logger.info("input_mask: %s", " ".join([str(x) for x in input_mask]))
-            logger.info("segment_ids: %s", " ".join([str(x) for x in segment_ids]))
-            logger.info("label_ids: %s", " ".join([str(x) for x in label_ids]))
-            logger.info("entity_type_ids: %s", " ".join([str(x) for x in entity_type_ids]))
+            assert len(input_ids) == max_seq_length
+            assert len(input_mask) == max_seq_length
+            assert len(segment_ids) == max_seq_length
+            assert len(window_label_ids) == max_seq_length
+            assert len(entity_type_ids) == max_seq_length
+            assert len(window_tokens) == max_seq_length
 
-        if "token_type_ids" not in tokenizer.model_input_names:
-            segment_ids = None
-        
-        features.append(
-            InputFeatures(
-                input_ids=input_ids, attention_mask=input_mask, token_type_ids=segment_ids, \
-                label_ids=label_ids, entity_type_ids=entity_type_ids, \
+            if ex_index < 1:
+                logger.info("*** Example ***")
+                logger.info("guid: %s", example.guid)
+                logger.info("tokens: %s", " ".join([str(x) for x in window_tokens]))
+                logger.info("input_ids: %s", " ".join([str(x) for x in input_ids]))
+                logger.info("input_mask: %s", " ".join([str(x) for x in input_mask]))
+                logger.info("segment_ids: %s", " ".join([str(x) for x in segment_ids]))
+                logger.info("label_ids: %s", " ".join([str(x) for x in window_label_ids]))
+                logger.info("entity_type_ids: %s", " ".join([str(x) for x in entity_type_ids]))
+
+            if "token_type_ids" not in tokenizer.model_input_names:
+                segment_ids = None
+            
+            features.append(
+                InputFeatures(
+                    input_ids=input_ids, attention_mask=input_mask, token_type_ids=segment_ids, \
+                    label_ids=window_label_ids, entity_type_ids=entity_type_ids, \
+                )
             )
-        )
-        write_tokens(tokens, det_tokens, 'test', base_name)
+            write_tokens(window_tokens, window_det_tokens, 'test', base_name)
+
     return features
 
 def write_tokens(tokens, det_tokens, mode, base_name):
@@ -506,8 +518,7 @@ class MTNER:
             num_labels=self.num_labels,
             config=self.config,
         )
-        self.device = torch.device("cuda" if torch.cuda.is_available() and not self.params.no_cuda else "cpu")
-        self.model = self.model.to(self.device)
+        self.model = self.model.cuda()
         self.entity_types = ['disease', 'drug', 'gene', 'species', 'cell_line', 'DNA', 'RNA', 'cell_type']
         self.estimator_dict = {}
         for etype in self.entity_types:
@@ -544,7 +555,7 @@ class MTNER:
 
         predict_example_list = (NerDataset(predict_examples, self.labels,\
                                 self.tokenizer, self.config, self.params, base_name))
-                
+        
         tokens, tot_tokens = list(), list()
 
         """
@@ -556,6 +567,7 @@ class MTNER:
         detok_words: <s> Authophagy maintains tumour growth ... </s>
         detok_label:  O       O         O        B      O   ... </s>
         """
+        
         with open(det_token_path, 'r') as reader:
             for line_idx, line in enumerate(reader):
                 tok = line.strip()
@@ -568,11 +580,11 @@ class MTNER:
                     tokens.append(tmp_toks)
                 else:
                     tmp_toks.append(tok)
+
         self.predict_dict, self.prob_dict = dict(), dict()
         threads, self.out_tag_dict = list(), dict()
 
         all_type = self._predict(predict_example_list)
-
         # disease, drug, gene, spec, cell_line, dna, rna, cell_type
         for etype_idx, etype in enumerate(self.entity_types):
             
@@ -652,6 +664,7 @@ class MTNER:
             overlen = False
             while True:
                 if overlen:
+                    
                     try:
                         self.predict_dict[etype][pmid][-1].extend(
                             de_labels[piv + de_i])
@@ -737,7 +750,7 @@ class MTNER:
                     logits = outputs[0]
 
             if not prediction_loss_only:
-                (dise_logits, chem_logits, gene_logits, spec_logits, cl_logits, dna_logits, rna_logits, _, ct_logits) = logits
+                (dise_logits, chem_logits, gene_logits, spec_logits, cl_logits, dna_logits, rna_logits, ct_logits) = logits
                 if dise_preds is None and chem_preds is None and gene_preds is None and spec_preds is None and cl_preds is None and dna_preds is None and rna_preds is None and ct_preds is None:
                     dise_preds = dise_logits.detach()
                     chem_preds = chem_logits.detach()
@@ -807,7 +820,6 @@ def main():
                             default=128)
     argparser.add_argument('--seed', type=int, help='random seed for initialization',
                             default=1)
-    argparser.add_argument('--no_cuda', action="store_true", help="Avoid using CUDA when available")
     args = argparser.parse_args()
 
     mtner = MTNER(args)
