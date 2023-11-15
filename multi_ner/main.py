@@ -750,7 +750,7 @@ class MTNER:
                     logits = outputs[0]
 
             if not prediction_loss_only:
-                (dise_logits, chem_logits, gene_logits, spec_logits, cl_logits, dna_logits, rna_logits, ct_logits) = logits
+                (dise_logits, chem_logits, gene_logits, spec_logits, cl_logits, dna_logits, rna_logits, _, ct_logits) = logits
                 if dise_preds is None and chem_preds is None and gene_preds is None and spec_preds is None and cl_preds is None and dna_preds is None and rna_preds is None and ct_preds is None:
                     dise_preds = dise_logits.detach()
                     chem_preds = chem_logits.detach()
