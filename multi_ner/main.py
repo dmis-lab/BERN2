@@ -518,7 +518,8 @@ class MTNER:
             num_labels=self.num_labels,
             config=self.config,
         )
-        self.model = self.model.cuda()
+        if not self.params.no_cuda:
+            self.model = self.model.cuda()
         self.entity_types = ['disease', 'drug', 'gene', 'species', 'cell_line', 'DNA', 'RNA', 'cell_type']
         self.estimator_dict = {}
         for etype in self.entity_types:
